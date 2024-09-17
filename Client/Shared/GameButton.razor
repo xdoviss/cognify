@@ -1,0 +1,16 @@
+﻿@code {
+	[Parameter]
+	public string Name { get; set; }
+
+	[Parameter]
+	public string Url { get; set; }
+
+	[Inject]
+	private NavigationManager NavigationManager { get; set; }
+
+	private void NavigateToGame() => NavigationManager.NavigateTo(Url);
+}
+
+<button @onclick="NavigateToGame" class="game-button">
+    @Name
+</button>

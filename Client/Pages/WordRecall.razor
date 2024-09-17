@@ -1,0 +1,74 @@
+﻿@page "/word-recall"
+@inject HttpClient Http
+
+<h3>Word Recall</h3>
+
+@if (!isGameStarted)
+	{
+	<button @onclick="StartGame">Start</button>
+	}
+else 
+	{
+	<div class="game-container">
+		<p>Current Word: @currentWord</p>
+		<p>Score: @score</p>
+		<p>Health: @health</p>
+
+		<button @onclick="() => CheckWord(true)">New</button>
+		<button @onclick="() => CheckWord(false)">Seen</button>
+	</div>
+	}
+
+@code {
+	private Random random = new Random();
+	private bool isGameStarted = false;
+
+	private string currentWord;
+	private List<string> seenWords = new List<string>();
+
+	private int score = 0;
+	private int health = 3;
+
+	private void StartGame() => isGameStarted = true;
+
+	protected override async Task OnInitializedAsync() => await GetNewWord();
+
+	private async Task GetNewWord()
+		{
+		try
+			{
+			currentWord = await Http.GetStringAsync("https://localhost:7067/api/WordRecall/");
+			}
+		catch (Exception ex)
+			{
+			Console.WriteLine($"Error fetching new word: {ex.Message}");
+			currentWord = "Error fetching word";
+			}
+		}
+
+	private async Task ShowWord()
+		{
+		if (random.Next(2) == 0 && seenWords.Count > 0)
+			currentWord = seenWords[random.Next(seenWords.Count)];
+		else
+			{
+			if (!seenWords.Contains(currentWord))
+				seenWords.Add(currentWord);
+
+			await GetNewWord();
+			}
+		}
+
+	private async Task CheckWord(bool isNew)
+		{
+		if ((isNew && !seenWords.Contains(currentWord)) || (!isNew && seenWords.Contains(currentWord)))
+			score++;
+		else
+			health--;
+
+		if (health > 0)
+			await ShowWord();
+		else
+			currentWord = "Game Over!";
+		}
+}

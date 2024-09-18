@@ -31,6 +31,8 @@ Please update this section of the README with each pull request. It will be easi
     - __Dovydas__ - word recall
     - __Titas__ - type racer
     - __Lukas__ - square board recall.
+- Added game select menu on homepage
+- Added basic functionality for word recall game
 
 ### 09/18 - 
 

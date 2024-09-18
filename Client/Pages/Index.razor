@@ -1,9 +1,12 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+<div class="home-container">
+	<h1>Games</h1>
+	<div class="games-list">
+		<GameButton Name="Word Recall" Url="/word-recall" />
+		<GameButton Name="Board Recall" Url="/board-recall" />
+		<GameButton Name="Type Racer" Url="/type-racer" />
+	</div>
+</div>

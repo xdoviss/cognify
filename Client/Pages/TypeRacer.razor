@@ -1,0 +1,73 @@
+@page "/type-racer"
+
+<h1>Typeracer Game</h1>
+
+<div>
+    <p>@TargetText</p>
+    <!-- Bind the input value directly to UserInput -->
+    <input @bind="UserInput" disabled="@(!IsGameStarted)" />
+    <p>Time: @ElapsedTime seconds</p>
+    <p>@GameStatus</p>
+    <p>Errors: @MistakesCount</p>
+    <p>@(new MarkupString(HighlightedUserInput))</p> <!-- Render the highlighted input -->
+    <button @onclick="StartGame" disabled="@IsGameStarted">Start Game</button>
+    <button @onclick="FinishGame" disabled="@(!IsGameStarted)">Finish</button>
+</div>
+
+@code {
+    private string TargetText = "abc";
+    private string UserInput = "";
+    private bool IsGameStarted = false;
+    private DateTime StartTime;
+    private double ElapsedTime = 0;
+    private string GameStatus = "Click 'Start Game' to begin.";
+    private int MistakesCount = 0;
+    private string HighlightedUserInput = "";
+
+    private void StartGame()
+    {
+        IsGameStarted = true;
+        UserInput = "";
+        ElapsedTime = 0;
+        GameStatus = "Keep typing...";
+        StartTime = DateTime.Now;
+        MistakesCount = 0;
+        HighlightedUserInput = "";
+    }
+
+    private void FinishGame()
+    {
+        IsGameStarted = false;
+        ElapsedTime = (DateTime.Now - StartTime).TotalSeconds;
+
+        // Reset mistake count and highlighted input
+        MistakesCount = 0;
+        HighlightedUserInput = "";
+
+        // Find the number of mistakes and highlight the incorrect characters
+        for (int i = 0; i < Math.Max(UserInput.Length, TargetText.Length); i++)
+        {
+            if (i >= TargetText.Length) // Extra characters in user input
+            {
+                HighlightedUserInput += $"<span style='color:red;'>{UserInput[i]}</span>";
+                MistakesCount++;
+            }
+            else if (i >= UserInput.Length) // Missing characters
+            {
+                HighlightedUserInput += $"<span style='color:red;'>_</span>";
+                MistakesCount++;
+            }
+            else if (UserInput[i] != TargetText[i]) // Mismatched characters
+            {
+                HighlightedUserInput += $"<span style='color:red;'>{UserInput[i]}</span>";
+                MistakesCount++;
+            }
+            else
+            {
+                HighlightedUserInput += UserInput[i]; // Correct character
+            }
+        }
+
+        GameStatus = $"You made {MistakesCount} mistake(s) and finished in {ElapsedTime} seconds.";
+    }
+}

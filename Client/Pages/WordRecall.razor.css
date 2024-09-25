@@ -1,0 +1,78 @@
+﻿body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h3 {
+    text-align: center;
+    color: #4CAF50;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+	transition: background-colors 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.game-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+#current-word {
+    font-size: 24px;
+    color: #FF5722;
+    margin: 20px 0;
+}
+
+#health {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+}
+
+#health::before {
+    content: attr(data-health);
+}
+
+#health[data-health="3"]::before {
+    content: "❤️❤️❤️";
+}
+
+#health[data-health="2"]::before {
+    content: "❤️❤️";
+}
+
+#health[data-health="1"]::before {
+    content: "❤️";
+}
+
+#health[data-health="0"]::before {
+    content: "💔";
+}
+

@@ -1,0 +1,30 @@
+﻿@namespace cognify.Shared.WordRecall
+
+@if (IsVisible)
+	{
+		<div class="overlay">
+			<div class="dialog">
+				<h3>How To Play</h3>
+				<p>1. Click "Start" to begin the game.</p>
+				<p>2. A word will appear on the screen.</p>
+				<p>3. Click "New" if you think the word is new.</p>
+				<p>4. Click "Seen" if you think you've seen the word before.</p>
+				<p>5. Gain points for correct answers and lose health for incorrect ones.</p>
+				<p>6. The game ends when your health reaches zero.</p>
+				<button @onclick="Close">Close</button>
+			</div>
+		</div>
+	}
+
+@code {
+	[Parameter]
+	public bool IsVisible { get; set; }
+
+	[Parameter]
+	public EventCallback OnClose { get; set; }
+
+	private void Close()
+		{
+		OnClose.InvokeAsync(null);
+		}
+}

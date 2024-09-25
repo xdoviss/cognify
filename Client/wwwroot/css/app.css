@@ -109,9 +109,10 @@ a, .btn-link {
     text-align: center;
 }
 
-.home-container h1 {
-    margin-bottom: 20px;
-}
+    .home-container h1 {
+        margin-bottom: 20px;
+        color: #FF5722;
+    }
 
 .games-list {
     display: flex;
@@ -123,7 +124,7 @@ a, .btn-link {
     padding: 20px;
     font-size: 1.5em;
     text-align: center;
-    background-color: #007bff;
+    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 10px;
@@ -131,6 +132,6 @@ a, .btn-link {
     transition: background-color 0.3s;
 }
 
-.game-button:hover {
-    background-color: #0056b3;
-}
+    .game-button:hover {
+        background-color: #45a049;
+    }

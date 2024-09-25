@@ -1,18 +1,25 @@
 ﻿@page "/word-recall"
 @inject HttpClient Http
+@using cognify.Shared.WordRecall
 
 <h3>Word Recall</h3>
 
 @if (!isGameStarted)
 	{
-	<button @onclick="StartGame">Start</button>
+	<div class="game-container">
+		<button @onclick="StartGame">Start</button>
+		<button @onclick="ShowHowToPlay">How To Play</button>
+
+		<HowToPlayDialog IsVisible="isHowToPlayVisible" OnClose="HideHowToPlay" />
+	</div>
 	}
 else 
 	{
 	<div class="game-container">
-		<p>Current Word: @currentWord</p>
+		<p>Current Word:</p>
+		<p id="current-word">@currentWord</p>
 		<p>Score: @score</p>
-		<p>Health: @health</p>
+		<div id="health" data-health="@health"/>
 
 		<button @onclick="() => CheckWord(true)">New</button>
 		<button @onclick="() => CheckWord(false)">Seen</button>
@@ -23,6 +30,8 @@ else
 	private Random random = new Random();
 	private bool isGameStarted = false;
 
+	private bool isHowToPlayVisible = false;
+
 	private string currentWord;
 	private List<string> seenWords = new List<string>();
 
@@ -31,13 +40,16 @@ else
 
 	private void StartGame() => isGameStarted = true;
 
+	private void HideHowToPlay() => isHowToPlayVisible = false;
+	private void ShowHowToPlay() => isHowToPlayVisible = true;
+
 	protected override async Task OnInitializedAsync() => await GetNewWord();
 
 	private async Task GetNewWord()
 		{
 		try
 			{
-			currentWord = await Http.GetStringAsync("https://localhost:7067/api/WordRecall/");
+			currentWord = await Http.GetStringAsync("http://localhost:5296/api/WordRecall/");
 			}
 		catch (Exception ex)
 			{

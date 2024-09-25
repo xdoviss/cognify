@@ -35,4 +35,4 @@ Please update this section of the README with each pull request. It will be easi
 - Added basic functionality for word recall game
 
 ### 09/18 - 
-
+- Added type-racer basic functionality with some simple features

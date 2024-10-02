@@ -1,21 +1,21 @@
 @page "/type-racer"
+@inject HttpClient Http
 
 <h1>Typeracer Game</h1>
 
 <div>
     <p>@TargetText</p>
-    <!-- Bind the input value directly to UserInput -->
-    <input @bind="UserInput" disabled="@(!IsGameStarted)" />
+    <input @bind="UserInput" disabled="@(!IsGameStarted)" @oninput="CheckUserInput" />
     <p>Time: @ElapsedTime seconds</p>
     <p>@GameStatus</p>
     <p>Errors: @MistakesCount</p>
-    <p>@(new MarkupString(HighlightedUserInput))</p> <!-- Render the highlighted input -->
+    <p>@(new MarkupString(HighlightedUserInput))</p>
     <button @onclick="StartGame" disabled="@IsGameStarted">Start Game</button>
     <button @onclick="FinishGame" disabled="@(!IsGameStarted)">Finish</button>
 </div>
 
 @code {
-    private string TargetText = "abc";
+    private string TargetText = "Fetching text...";
     private string UserInput = "";
     private bool IsGameStarted = false;
     private DateTime StartTime;
@@ -23,6 +23,25 @@
     private string GameStatus = "Click 'Start Game' to begin.";
     private int MistakesCount = 0;
     private string HighlightedUserInput = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchRandomText();
+    }
+
+    private async Task FetchRandomText()
+    {
+        try
+        {
+            // Fetch the random joke from the Chuck Norris API through our backend controller
+            TargetText = await Http.GetStringAsync("http://localhost:5296/api/TypeRacer");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching text: {ex.Message}");
+            TargetText = "Error fetching text";
+        }
+    }
 
     private void StartGame()
     {
@@ -34,37 +53,43 @@
         MistakesCount = 0;
         HighlightedUserInput = "";
     }
+    private void CheckUserInput()
+    {
+        if (UserInput.Equals(TargetText, StringComparison.OrdinalIgnoreCase))
+        {
+            FinishGame(); // Call FinishGame if the input matches the target text
+        }
+    }
+
 
     private void FinishGame()
     {
         IsGameStarted = false;
         ElapsedTime = (DateTime.Now - StartTime).TotalSeconds;
 
-        // Reset mistake count and highlighted input
         MistakesCount = 0;
         HighlightedUserInput = "";
 
-        // Find the number of mistakes and highlight the incorrect characters
         for (int i = 0; i < Math.Max(UserInput.Length, TargetText.Length); i++)
         {
-            if (i >= TargetText.Length) // Extra characters in user input
+            if (i >= TargetText.Length)
             {
                 HighlightedUserInput += $"<span style='color:red;'>{UserInput[i]}</span>";
                 MistakesCount++;
             }
-            else if (i >= UserInput.Length) // Missing characters
+            else if (i >= UserInput.Length)
             {
                 HighlightedUserInput += $"<span style='color:red;'>_</span>";
                 MistakesCount++;
             }
-            else if (UserInput[i] != TargetText[i]) // Mismatched characters
+            else if (UserInput[i] != TargetText[i])
             {
                 HighlightedUserInput += $"<span style='color:red;'>{UserInput[i]}</span>";
                 MistakesCount++;
             }
             else
             {
-                HighlightedUserInput += UserInput[i]; // Correct character
+                HighlightedUserInput += UserInput[i];
             }
         }
 

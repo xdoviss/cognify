@@ -39,3 +39,8 @@ Please update this section of the README with each pull request. It will be easi
 - Add styling to word recall game
 - Add `How To Play` dialog, invoked by button, to word recall
 - Added type-racer basic functionality with some simple features
+
+### 09/25 - 10/02
+-Added TypeRacerController.cs and also started getting the text for targetText from the internet
+-Tried adding the functionality to check automatically whether the user's input is the same as the target in TypeRacer
+

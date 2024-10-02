@@ -1,0 +1,191 @@
+@page "/board-recall"
+@inject HttpClient Http
+
+<h3>Square Board Recall</h3>
+
+@if (!isGameStarted)
+{
+    <button @onclick="StartGame">Start</button>
+}
+else
+{
+    <div class="game-container">
+        <p>Score: @score</p>
+        <p>Health: @health</p>
+
+        <div class="board">
+            @foreach (var card in Cards)
+            {
+                <div class="card" @onclick="() => FlipCard(card)">
+                    @if (card.IsFlipped)
+                    {
+                        <img src="@card.Image" alt="Card Image" />
+                    }
+                    else
+                    {
+                        <div class="card-back"></div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<p>@StatusMessage</p>
+
+@code {
+    private bool isGameStarted = false;
+    private List<Card> Cards = new List<Card>();
+    private Card? FirstFlippedCard { get; set; }  // Nullable
+    private Card? SecondFlippedCard { get; set; } // Nullable
+    private string StatusMessage = "Click 'Start' to begin the game.";
+    private int score = 0;
+    private int health = 3;
+
+    private async Task StartGame()
+    {
+        isGameStarted = true;
+        await InitializeGame();
+
+        // Flip all cards initially to let the user memorize them
+        foreach (var card in Cards)
+        {
+            card.IsFlipped = true;
+        }
+
+        StatusMessage = "Memorize the cards!";
+        StateHasChanged(); // Trigger a UI refresh to show the flipped cards
+
+        // Show all cards for 3 seconds, then flip them back
+        await Task.Delay(3000);
+
+        foreach (var card in Cards)
+        {
+            card.IsFlipped = false;
+        }
+
+        StatusMessage = "Start matching the cards!";
+        StateHasChanged(); // Trigger a UI refresh to flip the cards back
+    }
+
+    private async Task InitializeGame()
+    {
+        try
+        {
+            // Call backend API to get a new shuffled deck
+            Cards = await Http.GetFromJsonAsync<List<Card>>("/api/SquareBoardRecall/initialize-game");
+            if (Cards == null)
+            {
+                StatusMessage = "Failed to load cards from the server.";
+                isGameStarted = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "Error initializing game: " + ex.Message;
+            isGameStarted = false;
+        }
+    }
+
+    private void FlipCard(Card card)
+    {
+        if (!card.IsFlipped && FirstFlippedCard != card)
+        {
+            card.IsFlipped = true;
+
+            if (FirstFlippedCard == null)
+            {
+                FirstFlippedCard = card;
+            }
+            else if (SecondFlippedCard == null)
+            {
+                SecondFlippedCard = card;
+                CheckForMatch();
+            }
+        }
+    }
+
+    private async void CheckForMatch()
+    {
+        if (FirstFlippedCard != null && SecondFlippedCard != null && FirstFlippedCard.Id == SecondFlippedCard.Id)
+        {
+            StatusMessage = "It's a match!";
+            score++;  // Increment score on match
+            ResetFlippedCards();
+
+            // Check if all cards are flipped (game won)
+            if (Cards.All(c => c.IsFlipped))
+            {
+                StatusMessage = "All matched! Starting new round...";
+                await Task.Delay(2000);  // Delay to show the "all matched" message
+                await StartNewRound();  // Start new round with the same score
+            }
+        }
+        else
+        {
+            StatusMessage = "No match!";
+            health--;  // Decrease health on no match
+            if (health <= 0)
+            {
+                StatusMessage = "Game Over!";
+                EndGame();
+                return;
+            }
+            await Task.Delay(1000);  // Delay to let the user see the cards before flipping them back
+
+            // Flip the unmatched cards back over
+            if (FirstFlippedCard != null) FirstFlippedCard.IsFlipped = false;
+            if (SecondFlippedCard != null) SecondFlippedCard.IsFlipped = false;
+
+            ResetFlippedCards();
+        }
+    }
+
+    private void ResetFlippedCards()
+    {
+        FirstFlippedCard = null;
+        SecondFlippedCard = null;
+    }
+
+    private async Task StartNewRound()
+    {
+        // Reinitialize the game with shuffled cards
+        await InitializeGame();  
+
+        // Briefly show all cards to the user for memorization
+        foreach (var card in Cards)
+        {
+        card.IsFlipped = true;
+        }
+
+        // Update the UI to show all cards
+        StateHasChanged();
+
+        // Wait for 3 seconds to let the user memorize the cards
+        await Task.Delay(3000);
+
+        // Flip the cards back over
+        foreach (var card in Cards)
+        {
+            card.IsFlipped = false;
+        }
+
+        StatusMessage = "New round started! Match the cards!";
+    
+        // Trigger a UI refresh after flipping the cards back and resetting the health
+        StateHasChanged();
+    }
+
+    private void EndGame()
+    {
+        isGameStarted = false;
+        StatusMessage = "Game Over! Click 'Start' to try again.";
+    }
+
+    public class Card
+    {
+        public int Id { get; set; }
+        public string? Image { get; set; }
+        public bool IsFlipped { get; set; }
+    }
+}

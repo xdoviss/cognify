@@ -1,20 +1,20 @@
 @page "/board-recall"
 @inject HttpClient Http
-
+@using cognify.Client.Shared.SquareBoardRecall
 <h3>Square Board Recall</h3>
 
-@if (!isGameStarted)
+@if (!game.IsGameStarted)
 {
     <button @onclick="StartGame">Start</button>
 }
 else
 {
     <div class="game-container">
-        <p>Score: @score</p>
-        <p>Health: @health</p>
+        <p>Score: @game.Score</p>
+        <p>Health: @game.Health</p>
 
         <div class="board">
-            @foreach (var card in Cards)
+            @foreach (var card in game.Cards)
             {
                 <div class="card" @onclick="() => FlipCard(card)">
                     @if (card.IsFlipped)
@@ -31,75 +31,53 @@ else
     </div>
 }
 
-<p>@StatusMessage</p>
+<p>@game.StatusMessage</p>
 
 @code {
-    private bool isGameStarted = false;
-    private List<Card> Cards = new List<Card>();
-    private Card? FirstFlippedCard { get; set; }  // Nullable
-    private Card? SecondFlippedCard { get; set; } // Nullable
-    private string StatusMessage = "Click 'Start' to begin the game.";
-    private int score = 0;
-    private int health = 3;
+    private SquareBoardRecallGame game = new SquareBoardRecallGame();
 
     private async Task StartGame()
     {
-        isGameStarted = true;
+        game.IsGameStarted = true;
+
+        // Use extension method to reset the game state
+        game.ResetGameState();
+
         await InitializeGame();
 
-        // Flip all cards initially to let the user memorize them
-        foreach (var card in Cards)
+        foreach (var card in game.Cards)
         {
             card.IsFlipped = true;
         }
 
-        StatusMessage = "Memorize the cards!";
-        StateHasChanged(); // Trigger a UI refresh to show the flipped cards
+        // Use extension method to update the status message
+        game.UpdateStatusMessage("Memorize the cards!");
+        StateHasChanged();
 
-        // Show all cards for 3 seconds, then flip them back
         await Task.Delay(3000);
 
-        foreach (var card in Cards)
+        foreach (var card in game.Cards)
         {
             card.IsFlipped = false;
         }
 
-        StatusMessage = "Start matching the cards!";
-        StateHasChanged(); // Trigger a UI refresh to flip the cards back
+        game.UpdateStatusMessage("Start matching the cards!");
+        StateHasChanged();
     }
 
-    private async Task InitializeGame()
+    private void FlipCard(SquareBoardRecallGame.Card card)
     {
-        try
-        {
-            // Call backend API to get a new shuffled deck
-            Cards = await Http.GetFromJsonAsync<List<Card>>("/api/SquareBoardRecall/initialize-game");
-            if (Cards == null)
-            {
-                StatusMessage = "Failed to load cards from the server.";
-                isGameStarted = false;
-            }
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = "Error initializing game: " + ex.Message;
-            isGameStarted = false;
-        }
-    }
-
-    private void FlipCard(Card card)
-    {
-        if (!card.IsFlipped && FirstFlippedCard != card)
+        if (!card.IsFlipped && game.FirstFlippedCard != card)
         {
             card.IsFlipped = true;
 
-            if (FirstFlippedCard == null)
+            if (game.FirstFlippedCard == null)
             {
-                FirstFlippedCard = card;
+                game.FirstFlippedCard = card;
             }
-            else if (SecondFlippedCard == null)
+            else if (game.SecondFlippedCard == null)
             {
-                SecondFlippedCard = card;
+                game.SecondFlippedCard = card;
                 CheckForMatch();
             }
         }
@@ -107,44 +85,63 @@ else
 
     private async void CheckForMatch()
     {
-        if (FirstFlippedCard != null && SecondFlippedCard != null && FirstFlippedCard.Id == SecondFlippedCard.Id)
+        if (game.FirstFlippedCard != null && game.SecondFlippedCard != null)
         {
-            StatusMessage = "It's a match!";
-            score++;  // Increment score on match
-            ResetFlippedCards();
-
-            // Check if all cards are flipped (game won)
-            if (Cards.All(c => c.IsFlipped))
+            // If the two cards match
+            if (game.FirstFlippedCard.Id == game.SecondFlippedCard.Id)
             {
-                StatusMessage = "All matched! Starting new round...";
-                await Task.Delay(2000);  // Delay to show the "all matched" message
-                await StartNewRound();  // Start new round with the same score
+                game.Score++;
+                game.UpdateStatusMessage("It's a match!");
+                // No need to flip the cards back, so we just reset the flipped cards to null
+                game.ResetFlippedCards();  // Reset the flipped card references, but leave the cards as flipped
+                StateHasChanged();
+
+                // Check if all cards are flipped (i.e., game won)
+                if (game.Cards.All(c => c.IsFlipped))
+                {
+                    game.UpdateStatusMessage("All matched! Starting new round...");
+                    await Task.Delay(2000);  // Delay to show the "all matched" message
+                    await StartNewRound();  // Start new round with the same score
+                }
             }
-        }
-        else
-        {
-            StatusMessage = "No match!";
-            health--;  // Decrease health on no match
-            if (health <= 0)
+            else
             {
-                StatusMessage = "Game Over!";
-                EndGame();
-                return;
+                // If the two cards do not match
+                game.Health--;
+                game.UpdateStatusMessage("No match!");
+
+                if (game.Health <= 0)
+                {
+                    game.UpdateStatusMessage("Game Over!");
+                    EndGame();
+                    return;
+                }
+
+                // Flip the unmatched cards back after a short delay
+                await Task.Delay(1000);
+
+                // Flip the cards back to face down
+                game.FirstFlippedCard.IsFlipped = false;
+                game.SecondFlippedCard.IsFlipped = false;
+
+                // Reset the flipped card references
+                game.ResetFlippedCards();  // Reset the flipped cards for the next attempt
+                StateHasChanged();
             }
-            await Task.Delay(1000);  // Delay to let the user see the cards before flipping them back
-
-            // Flip the unmatched cards back over
-            if (FirstFlippedCard != null) FirstFlippedCard.IsFlipped = false;
-            if (SecondFlippedCard != null) SecondFlippedCard.IsFlipped = false;
-
-            ResetFlippedCards();
         }
     }
 
-    private void ResetFlippedCards()
+
+    private async Task InitializeGame()
     {
-        FirstFlippedCard = null;
-        SecondFlippedCard = null;
+        try
+        {
+            game.Cards = await Http.GetFromJsonAsync<List<SquareBoardRecallGame.Card>>("/api/SquareBoardRecall/initialize-game");
+        }
+        catch (Exception ex)
+        {
+            game.UpdateStatusMessage("Error initializing game: " + ex.Message);
+        }
     }
 
     private async Task StartNewRound()
@@ -152,40 +149,28 @@ else
         // Reinitialize the game with shuffled cards
         await InitializeGame();  
 
-        // Briefly show all cards to the user for memorization
-        foreach (var card in Cards)
+        foreach (var card in game.Cards)
         {
-        card.IsFlipped = true;
+            card.IsFlipped = true;
         }
-
-        // Update the UI to show all cards
+        game.UpdateStatusMessage("Memorize the cards!");
         StateHasChanged();
-
-        // Wait for 3 seconds to let the user memorize the cards
+        game.CanFlip = false;
         await Task.Delay(3000);
 
-        // Flip the cards back over
-        foreach (var card in Cards)
+        foreach (var card in game.Cards)
         {
             card.IsFlipped = false;
         }
 
-        StatusMessage = "New round started! Match the cards!";
-    
-        // Trigger a UI refresh after flipping the cards back and resetting the health
+        game.UpdateStatusMessage("New round started! Match the cards!");
+        game.CanFlip = true;
         StateHasChanged();
     }
-
     private void EndGame()
     {
-        isGameStarted = false;
-        StatusMessage = "Game Over! Click 'Start' to try again.";
+        game.IsGameStarted = false;
+        game.UpdateStatusMessage("Game Over! Click 'Start' to try again."); // Use the extension method to update the message
     }
 
-    public class Card
-    {
-        public int Id { get; set; }
-        public string? Image { get; set; }
-        public bool IsFlipped { get; set; }
-    }
 }

@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using cognify.Server.Models;
 using cognify.Shared;
+using System.IO;
+
 
 
 namespace cognify.Server.Controllers
@@ -31,14 +33,19 @@ namespace cognify.Server.Controllers
         {
             try
             {
-                // Read all lines from the file
-                var lines = await System.IO.File.ReadAllLinesAsync(filePath);
-                var random = new Random();
-
-                if (lines.Length > 0)
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                using (StreamReader reader = new StreamReader(fs))
                 {
-                    int index = random.Next(0, lines.Length);
-                    return lines[index];
+                    // Read all lines from the file stream, split them and get a random line from a file
+                    var lines = await reader.ReadToEndAsync();
+                    var lineArray = lines.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                    var random = new Random();
+
+                    if (lineArray.Length > 0)
+                    {
+                        int index = random.Next(0, lineArray.Length);
+                        return lineArray[index];
+                    }
                 }
                 return null;
             }

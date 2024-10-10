@@ -48,6 +48,6 @@ Please update this section of the README with each pull request. It will be easi
 - Implemented shuffling and resetting of cards after all pairs are matched, without resetting the health.
 - Ensured game flow continues smoothly between rounds while preserving the player's current score and health.
 
-### 10/02 - 10/09
+### 10/02 - 10/10
 - TypeRacer now fetches the target text from a text file, also fixed the mistake when the user input was correct the game would not finish.
 - Added IEnumerable .NET interface

@@ -1,44 +1,64 @@
 ﻿@page "/word-recall"
 @inject HttpClient Http
+@using cognify.Shared
 @using cognify.Shared.WordRecall
 
 <h3>Word Recall</h3>
 
-@if (!isGameStarted)
+@if (GameStatistics == null || GameStatistics.State == GameState.NotStarted)
 	{
-	<div class="game-container">
-		<button @onclick="StartGame">Start</button>
-		<button @onclick="ShowHowToPlay">How To Play</button>
+		<div class="game-container">
+			<button @onclick="StartGame">Start</button>
+			<button @onclick="ShowHowToPlay">How To Play</button>
 
-		<HowToPlayDialog IsVisible="isHowToPlayVisible" OnClose="HideHowToPlay" />
-	</div>
+			<HowToPlayDialog IsVisible="isHowToPlayVisible" OnClose="HideHowToPlay" />
+		</div>
 	}
-else 
+else if (GameStatistics.State == GameState.InProgress)
 	{
-	<div class="game-container">
-		<p>Current Word:</p>
-		<p id="current-word">@currentWord</p>
-		<p>Score: @score</p>
-		<div id="health" data-health="@health"/>
+		<div class="game-container">
+			<p>Current Word:</p>
+			<p id="current-word">@currentWord</p>
+			<p>Score: @GameStatistics.Score</p>
+			<div id="health" data-health="@GameStatistics.Health"></div>
 
-		<button @onclick="() => CheckWord(true)">New</button>
-		<button @onclick="() => CheckWord(false)">Seen</button>
-	</div>
+			<button @onclick="() => CheckWord(true)">New</button>
+			<button @onclick="() => CheckWord(false)">Seen</button>
+		</div>
+	}
+else
+	{
+		<div class="game-container">
+			<p>Game Finished</p>
+			<p>Highscore: @highscore</p>
+			<p>Score: @GameStatistics.Score</p>
+			<button @onclick="StartGame">Restart</button>
+		</div>
 	}
 
 @code {
 	private Random random = new Random();
-	private bool isGameStarted = false;
-
 	private bool isHowToPlayVisible = false;
 
 	private string currentWord;
 	private List<string> seenWords = new List<string>();
+	private int highscore = 0;
 
-	private int score = 0;
-	private int health = 3;
+	WordRecallStatistics? GameStatistics = null;
 
-	private void StartGame() => isGameStarted = true;
+	private async Task StartGame()
+		{
+		var response = await Http.PostAsync("api/WordRecall/start", null);
+		if (response.IsSuccessStatusCode)
+			{
+			GameStatistics = await response.Content.ReadFromJsonAsync<WordRecallStatistics>();
+			await GetNewWord();
+			}
+		else
+			{
+			Console.WriteLine("Failed to start the game.");
+			}
+		}
 
 	private void HideHowToPlay() => isHowToPlayVisible = false;
 	private void ShowHowToPlay() => isHowToPlayVisible = true;
@@ -61,11 +81,15 @@ else
 	private async Task ShowWord()
 		{
 		if (random.Next(2) == 0 && seenWords.Count > 0)
+			{
 			currentWord = seenWords[random.Next(seenWords.Count)];
+			}
 		else
 			{
 			if (!seenWords.Contains(currentWord))
+				{
 				seenWords.Add(currentWord);
+				}
 
 			await GetNewWord();
 			}
@@ -74,13 +98,33 @@ else
 	private async Task CheckWord(bool isNew)
 		{
 		if ((isNew && !seenWords.Contains(currentWord)) || (!isNew && seenWords.Contains(currentWord)))
-			score++;
+			{
+			var response = await Http.PostAsJsonAsync("api/WordRecall/update-score", 1);
+			if (response.IsSuccessStatusCode)
+				{
+				GameStatistics = await response.Content.ReadFromJsonAsync<WordRecallStatistics>();
+				}
+			}
 		else
-			health--;
+			{
+			var response = await Http.PostAsJsonAsync("api/WordRecall/update-health", GameStatistics.Health - 1);
+			if (response.IsSuccessStatusCode)
+				{
+				GameStatistics = await response.Content.ReadFromJsonAsync<WordRecallStatistics>();
+				}
+			}
 
-		if (health > 0)
+		if (GameStatistics.Health > 0)
+			{
 			await ShowWord();
+			}
 		else
-			currentWord = "Game Over!";
+			{
+			var response = await Http.PostAsJsonAsync("api/WordRecall/update-state", GameState.Finished);
+			if (response.IsSuccessStatusCode)
+				GameStatistics = await response.Content.ReadFromJsonAsync<WordRecallStatistics>();
+
+			highscore = await Http.GetFromJsonAsync<int>("api/WordRecall/highscore");
+			}
 		}
 }

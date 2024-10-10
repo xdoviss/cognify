@@ -55,3 +55,5 @@ Please update this section of the README with each pull request. It will be easi
 - Modifying .razor files and adding razor.cs files to seperate @code block for each game to improve readability.
 - Created a GameStatistics class and a GameState enum for Word Recall
 - Moved most of the game logic to the backend for Word Recall
+- TypeRacer now fetches the target text from a text file, also fixed the mistake when the user input was correct the game would not finish.
+- Added IEnumerable .NET interface

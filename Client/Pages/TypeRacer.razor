@@ -5,94 +5,10 @@
 
 <div>
     <p>@TargetText</p>
-    <input @bind="UserInput" disabled="@(!IsGameStarted)" @oninput="CheckUserInput" />
+    <input value="@UserInput" @oninput="HandleInput" disabled="@(!IsGameStarted)" />
     <p>Time: @ElapsedTime seconds</p>
     <p>@GameStatus</p>
     <p>Errors: @MistakesCount</p>
     <p>@(new MarkupString(HighlightedUserInput))</p>
     <button @onclick="StartGame" disabled="@IsGameStarted">Start Game</button>
-    <button @onclick="FinishGame" disabled="@(!IsGameStarted)">Finish</button>
 </div>
-
-@code {
-    private string TargetText = "Fetching text...";
-    private string UserInput = "";
-    private bool IsGameStarted = false;
-    private DateTime StartTime;
-    private double ElapsedTime = 0;
-    private string GameStatus = "Click 'Start Game' to begin.";
-    private int MistakesCount = 0;
-    private string HighlightedUserInput = "";
-
-    protected override async Task OnInitializedAsync()
-    {
-        await FetchRandomText();
-    }
-
-    private async Task FetchRandomText()
-    {
-        try
-        {
-            // Fetch the random joke from the Chuck Norris API through our backend controller
-            TargetText = await Http.GetStringAsync("http://localhost:5296/api/TypeRacer");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error fetching text: {ex.Message}");
-            TargetText = "Error fetching text";
-        }
-    }
-
-    private void StartGame()
-    {
-        IsGameStarted = true;
-        UserInput = "";
-        ElapsedTime = 0;
-        GameStatus = "Keep typing...";
-        StartTime = DateTime.Now;
-        MistakesCount = 0;
-        HighlightedUserInput = "";
-    }
-    private void CheckUserInput()
-    {
-        if (UserInput.Equals(TargetText, StringComparison.OrdinalIgnoreCase))
-        {
-            FinishGame(); // Call FinishGame if the input matches the target text
-        }
-    }
-
-
-    private void FinishGame()
-    {
-        IsGameStarted = false;
-        ElapsedTime = (DateTime.Now - StartTime).TotalSeconds;
-
-        MistakesCount = 0;
-        HighlightedUserInput = "";
-
-        for (int i = 0; i < Math.Max(UserInput.Length, TargetText.Length); i++)
-        {
-            if (i >= TargetText.Length)
-            {
-                HighlightedUserInput += $"<span style='color:red;'>{UserInput[i]}</span>";
-                MistakesCount++;
-            }
-            else if (i >= UserInput.Length)
-            {
-                HighlightedUserInput += $"<span style='color:red;'>_</span>";
-                MistakesCount++;
-            }
-            else if (UserInput[i] != TargetText[i])
-            {
-                HighlightedUserInput += $"<span style='color:red;'>{UserInput[i]}</span>";
-                MistakesCount++;
-            }
-            else
-            {
-                HighlightedUserInput += UserInput[i];
-            }
-        }
-
-        GameStatus = $"You made {MistakesCount} mistake(s) and finished in {ElapsedTime} seconds.";
-    }
-}

@@ -39,7 +39,7 @@ Please update this section of the README with each pull request. It will be easi
 - Add styling to word recall game
 - Add `How To Play` dialog, invoked by button, to word recall
 - Added type-racer basic functionality with some simple features
-- 
+
 ### 09/25 - 10/02
 - Added TypeRacerController.cs and also started getting the text for targetText from the internet
 - Tried adding the functionality to check automatically whether the user's input is the same as the target in TypeRacer
@@ -47,8 +47,11 @@ Please update this section of the README with each pull request. It will be easi
 - Added logic to track score and maintain health between rounds in Square Board Recall.
 - Implemented shuffling and resetting of cards after all pairs are matched, without resetting the health.
 - Ensured game flow continues smoothly between rounds while preserving the player's current score and health.
+
 ### 10/02 - 10/10
 - Added extension method that works with the Square Board Recall game.
 - Using Card as a record in the SquareBoardRecall.controller
-- Adding additional functionalities to the logic of Square Boar Recall game to make work smoothly.
+- Adding additional functionalities to the logic of Square Board Recall game to make work smoothly.
 - Modifying .razor files and adding razor.cs files to seperate @code block for each game to improve readability.
+- Created a GameStatistics class and a GameState enum for Word Recall
+- Moved most of the game logic to the backend for Word Recall

@@ -49,5 +49,9 @@ Please update this section of the README with each pull request. It will be easi
 - Ensured game flow continues smoothly between rounds while preserving the player's current score and health.
 
 ### 10/02 - 10/10
-- TypeRacer now fetches the target text from a text file, also fixed the mistake when the user input was correct the game would not finish.
-- Added IEnumerable .NET interface
+-Added extension method that works with the Square Board Recall game.
+-Using Card as a record in the SquareBoardRecall.controller
+-Adding additional functionalities to the logic of Square Boar Recall game to make work smoothly.
+-Modifying .razor files and adding razor.cs files to seperate @code block for each game to improve readability.
+-TypeRacer now fetches the target text from a text file, also fixed the mistake when the user input was correct the game would not finish.
+-Added IEnumerable .NET interface

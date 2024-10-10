@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Text.Json; // Required for JSON deserialization
+using cognify.Server.Models;
+using cognify.Shared;
+
 
 namespace cognify.Server.Controllers
 {
@@ -9,40 +11,49 @@ namespace cognify.Server.Controllers
     [Route("api/[controller]")]
     public class TypeRacerController : ControllerBase
     {
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private string filePath = "SampleTexts.txt";
+        private GameResults gameResults = new GameResults();
 
         [HttpGet]
         public async Task<ActionResult<string>> GetRandomText()
         {
-            string randomText = await FetchChuckNorrisJoke();
+            string randomText = await LoadRandomTextFromFile();
 
             if (string.IsNullOrEmpty(randomText))
             {
-                return BadRequest("Failed to fetch text");
+                return BadRequest("Failed to load text from a file");
             }
 
             return Ok(randomText);
         }
 
-        private async Task<string> FetchChuckNorrisJoke()
+        private async Task<string> LoadRandomTextFromFile()
         {
             try
             {
-                // Request a random Chuck Norris joke from the API
-                var response = await HttpClient.GetStringAsync("https://api.chucknorris.io/jokes/random");
+                // Read all lines from the file
+                var lines = await System.IO.File.ReadAllLinesAsync(filePath);
+                var random = new Random();
 
-                // Parse the response
-                var jokeJson = JsonDocument.Parse(response);
-                string joke = jokeJson.RootElement.GetProperty("value").GetString();
-
-                return joke;
+                if (lines.Length > 0)
+                {
+                    int index = random.Next(0, lines.Length);
+                    return lines[index];
+                }
+                return null;
             }
-            catch (HttpRequestException ex)
+            catch (IOException ex)
             {
-                // Log error and return null in case of failure
-                Console.WriteLine($"Error fetching joke: {ex.Message}");
+                Console.WriteLine($"Error reading file: {ex.Message}");
                 return null;
             }
         }
+        [HttpPost("add-result")]
+        public ActionResult AddGameResult([FromBody] GameResult result)
+        {
+            gameResults.AddResult(result);
+            return Ok("Game result added successfully.");
+        }
+
     }
 }

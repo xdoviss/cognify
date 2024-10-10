@@ -22,8 +22,8 @@ public class SquareBoardRecallController : ControllerBase
         // Create pairs of cards with unique Ids and image paths
         for (int i = 1; i <= numberOfCards / 2; i++)
         {
-            var card1 = new Card { Id = i, Image = $"/images/card{i}.png" };
-            var card2 = new Card { Id = i, Image = $"/images/card{i}.png" };
+            var card1 = new Card(i, $"/images/card{i}.png");
+            var card2 = new Card(i, $"/images/card{i}.png");
 
             cards.Add(card1);
             cards.Add(card2);
@@ -36,10 +36,8 @@ public class SquareBoardRecallController : ControllerBase
         return cards;
     }
 
-    public class Card
+    public record Card(int Id, string? Image)
     {
-        public int Id { get; set; }
-        public string? Image { get; set; }
-        public bool IsFlipped { get; set; }
+        public bool IsFlipped { get; set; } = false;
     }
 }

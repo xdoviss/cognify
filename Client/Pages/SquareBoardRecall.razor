@@ -1,0 +1,36 @@
+@page "/board-recall"
+@inject HttpClient Http
+@using cognify.Client.Shared.SquareBoardRecall
+<h3>Square Board Recall</h3>
+
+@if (!game.IsGameStarted)
+{
+    <button @onclick="StartGame">Start</button>
+}
+else
+{
+    <div class="game-container">
+        <p>Score: @game.Score</p>
+        <p>Health: @game.Health</p>
+
+        <div class="board">
+            @foreach (var card in game.Cards)
+            {
+                <div class="card" @onclick="() => FlipCard(card)">
+                    @if (card.IsFlipped)
+                    {
+                        <img src="@card.Image" alt="Card Image" />
+                    }
+                    else
+                    {
+                        <div class="card-back"></div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<p>@game.StatusMessage</p>
+
+

@@ -47,4 +47,8 @@ Please update this section of the README with each pull request. It will be easi
 - Added logic to track score and maintain health between rounds in Square Board Recall.
 - Implemented shuffling and resetting of cards after all pairs are matched, without resetting the health.
 - Ensured game flow continues smoothly between rounds while preserving the player's current score and health.
-
+### 10/02 - 10/10
+- Added extension method that works with the Square Board Recall game.
+- Using Card as a record in the SquareBoardRecall.controller
+- Adding additional functionalities to the logic of Square Boar Recall game to make work smoothly.
+- Modifying .razor files and adding razor.cs files to seperate @code block for each game to improve readability.

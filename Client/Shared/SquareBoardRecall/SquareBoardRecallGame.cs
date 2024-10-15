@@ -1,7 +1,15 @@
 namespace cognify.Client.Shared.SquareBoardRecall
 {
+    public enum GameState
+    {
+        NotStarted,
+        InProgress,
+        Paused,
+        GameOver
+    }
     public class SquareBoardRecallGame
     {
+        
         public bool IsGameStarted { get; set; } = false;
         public List<Card> Cards { get; set; } = new List<Card>();
         public Card? FirstFlippedCard { get; set; }
@@ -9,6 +17,7 @@ namespace cognify.Client.Shared.SquareBoardRecall
         public string StatusMessage { get; set; } = "Click 'Start' to begin the game.";
         public int Score { get; set; } = 0;
         public int Health { get; set; } = 3;
+        public int difficultyLevel {get; set; } = 0;
         public bool CanFlip { get; set; } = false;
         public class Card
         {

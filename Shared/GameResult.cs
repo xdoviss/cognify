@@ -2,14 +2,19 @@ namespace cognify.Shared
 {
     public class GameResult
     {
-        public double ElapsedTime { get; set; }
-        public int MistakesCount { get; set; }
+        
+        public double? TypeRacerWPM { get; set; }
+        public int? WordRecallHS { get; set; }
+        public int? BoardRecallHS { get; set; }
+        //public string UserName { get; set; }
+        //Could have the User's name later, when we have login
 
-        public GameResult(double elapsedTime, int mistakesCount)
+        // Constructor for setting scores for a specific game
+        public GameResult(double? typeRacerWPM = null, int? wordRecallHS = null, int? boardRecallHS = null)
         {
-            ElapsedTime = elapsedTime;
-            MistakesCount = mistakesCount;
-        }   
+            TypeRacerWPM = typeRacerWPM;
+            WordRecallHS = wordRecallHS;
+            BoardRecallHS = boardRecallHS;
+        }
     }
-    
 }

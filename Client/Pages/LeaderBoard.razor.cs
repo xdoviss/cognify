@@ -11,37 +11,45 @@ namespace cognify.Client.Pages
     public partial class LeaderBoard : ComponentBase
     {
         private string selectedGame = "TypeRacer";  // Default selected game
+        public List<GameResult> AllGameResults { get; set; } = new List<GameResult>();
+        public List<GameResult> FilteredResults { get; set; } = new List<GameResult>();
 
-        // Filtered lists for each game type
-        public List<GameResult> TypeRacerResults { get; set; } = new List<GameResult>();
-        public List<GameResult> WordRecallResults { get; set; } = new List<GameResult>();
-        public List<GameResult> BoardRecallResults { get; set; } = new List<GameResult>();
         [Inject]
         private HttpClient HttpClient { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
-            // Load game results from the GameResultService
+            // Load game results from the server
             await LoadGameResultsAsync();
 
+            // Filter results
+            FilterResults();
         }
 
         private async Task LoadGameResultsAsync()
         {
-            var allGameResults = await HttpClient.GetFromJsonAsync<List<GameResult>>("api/LeaderBoard/results");
+            AllGameResults = await HttpClient.GetFromJsonAsync<List<GameResult>>("api/LeaderBoard/results");
+        }
 
-            if (allGameResults != null)
+        private void FilterResults()
+        {
+            GameType gameType = selectedGame switch
             {
-                foreach (var result in allGameResults)
-                {
-                    if (result.TypeRacerWPM > 0)
-                        TypeRacerResults.Add(result);
-                    if (result.WordRecallHS > 0)
-                        WordRecallResults.Add(result);
-                    if (result.BoardRecallHS > 0)
-                        BoardRecallResults.Add(result);
-                }
-            }
+                "TypeRacer" => GameType.TypeRacer,
+                "WordRecall" => GameType.WordRecall,
+                "BoardRecall" => GameType.BoardRecall,
+                _ => GameType.TypeRacer // Default fallback to TypeRacer
+            };
+
+            FilteredResults = AllGameResults.Where(r => r.GameType == gameType).ToList();
+        }
+
+        private void OnGameTypeChange(ChangeEventArgs e)
+        {
+            // Update selectedGame
+            selectedGame = e.Value.ToString();
+            // Re-filter results
+            FilterResults();
         }
     }
 }

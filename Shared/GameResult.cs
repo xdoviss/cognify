@@ -2,19 +2,16 @@ namespace cognify.Shared
 {
     public class GameResult
     {
-        
-        public double? TypeRacerWPM { get; set; }
-        public int? WordRecallHS { get; set; }
-        public int? BoardRecallHS { get; set; }
-        //public string UserName { get; set; }
-        //Could have the User's name later, when we have login
+        public GameType GameType { get; set; }  // Enum to specify which game we register the score to
+        public double Score { get; set; }       // Common score property for all games
+        public string UserName { get; set; }
 
-        // Constructor for setting scores for a specific game
-        public GameResult(double? typeRacerWPM = null, int? wordRecallHS = null, int? boardRecallHS = null)
+        // Constructor to set game type and score
+        public GameResult(GameType gameType, double score, string userName = "Default user")
         {
-            TypeRacerWPM = typeRacerWPM;
-            WordRecallHS = wordRecallHS;
-            BoardRecallHS = boardRecallHS;
+            GameType = gameType;
+            Score = score;
+            UserName = userName;
         }
     }
 }

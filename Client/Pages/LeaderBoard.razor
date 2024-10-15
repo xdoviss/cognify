@@ -3,39 +3,37 @@
 <h3>Leaderboard</h3>
 
 <label>Select Game:</label>
-<select @bind="selectedGame">
+<select value="@selectedGame" @onchange="OnGameTypeChange">
     <option value="TypeRacer">TypeRacer</option>
     <option value="WordRecall">WordRecall</option>
     <option value="BoardRecall">BoardRecall</option>
 </select>
 
-@if (selectedGame == "TypeRacer")
+<h4>@selectedGame High Scores</h4>
+@if (FilteredResults.Count == 0)
 {
-    <h4>TypeRacer High Scores</h4>
-    <ul>
-        @foreach (var result in TypeRacerResults)
-        {
-            <li>WPM: @result.TypeRacerWPM</li>
-        }
-    </ul>
+    <p>No results available for this game.</p>
 }
-else if (selectedGame == "WordRecall")
+else
 {
-    <h4>WordRecall High Scores</h4>
     <ul>
-        @foreach (var result in WordRecallResults)
+        @foreach (var result in FilteredResults)
         {
-            <li>Score: @result.WordRecallHS</li>
-        }
-    </ul>
-}
-else if (selectedGame == "BoardRecall")
-{
-    <h4>BoardRecall High Scores</h4>
-    <ul>
-        @foreach (var result in BoardRecallResults)
-        {
-            <li>Score: @result.BoardRecallHS</li>
+            <li>
+                User: @result.UserName - Score: @result.Score
+                @if (selectedGame == "TypeRacer")
+                {
+                    <text> WPM</text>   <!-- I Added "WPM" after the score for TypeRacer -->
+                }
+                @if (selectedGame == "WordRecall")
+                {
+                    <text> Words recalled</text>    <!-- If you want to change anything what to display after your game score-->
+                }
+                @if (selectedGame == "BoardRecall")
+                {
+                    <text> Boards recalled</text>   <!-- You can do so here guys -->
+                }
+            </li>
         }
     </ul>
 }

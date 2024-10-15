@@ -38,7 +38,7 @@ namespace cognify.Server.Controllers
         [HttpPost("add-result")]
         public ActionResult AddGameResult([FromBody] GameResult result)
         {
-            _gameResultService.AddResult(result); // Use the service to add the result
+            _gameResultService.AddResult(result);
             return Ok("Game result added successfully.");
         }
 

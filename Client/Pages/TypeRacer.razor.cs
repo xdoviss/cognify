@@ -96,7 +96,7 @@ namespace cognify.Client.Pages
 
             double totalWords = UserInput.Length / 5.0;
             double WPM = Math.Round(totalWords / (ElapsedTime / 60.0), 2);
-            var gameResult = new GameResult(typeRacerWPM: WPM);
+            var gameResult = new GameResult(GameType.TypeRacer, WPM);
             System.Console.WriteLine(WPM);
             await Http.PostAsJsonAsync("api/typeracer/add-result", gameResult);
         }

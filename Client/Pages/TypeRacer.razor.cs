@@ -59,7 +59,6 @@ namespace cognify.Client.Pages
             {
                 await FinishGame(); // Call FinishGame if the input matches the target text
             }
-            System.Console.WriteLine(UserInput + " | " + TargetText);
         }
 
         private async Task FinishGame()
@@ -95,7 +94,10 @@ namespace cognify.Client.Pages
 
             GameStatus = $"You made {MistakesCount} mistake(s) and finished in {ElapsedTime} seconds.";
 
-            var gameResult = new GameResult(ElapsedTime, MistakesCount);
+            double totalWords = UserInput.Length / 5.0;
+            double WPM = Math.Round(totalWords / (ElapsedTime / 60.0), 2);
+            var gameResult = new GameResult(GameType.TypeRacer, WPM);
+            System.Console.WriteLine(WPM);
             await Http.PostAsJsonAsync("api/typeracer/add-result", gameResult);
         }
     }

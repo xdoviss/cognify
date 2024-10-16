@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using cognify.Shared;
 
-namespace cognify.Server.Models
+namespace cognify.Shared
 {
     public class GameResults : IEnumerable<GameResult>
     {

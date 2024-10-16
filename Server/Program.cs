@@ -4,6 +4,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<TextLoaderService>(); //Added this so that TypeRacerController would work :)
+builder.Services.AddSingleton<GameResultService>(); // This one for adding the GameResults
+
 
 builder.Services.AddCors(options =>
 {

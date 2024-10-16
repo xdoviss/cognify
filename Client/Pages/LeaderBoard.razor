@@ -1,0 +1,39 @@
+@page "/leaderboard"
+
+<h3>Leaderboard</h3>
+
+<label>Select Game:</label>
+<select value="@selectedGame" @onchange="OnGameTypeChange">
+    <option value="TypeRacer">TypeRacer</option>
+    <option value="WordRecall">WordRecall</option>
+    <option value="BoardRecall">BoardRecall</option>
+</select>
+
+<h4>@selectedGame High Scores</h4>
+@if (FilteredResults.Count == 0)
+{
+    <p>No results available for this game.</p>
+}
+else
+{
+    <ul>
+        @foreach (var result in FilteredResults)
+        {
+            <li>
+                User: @result.UserName - Score: @result.Score
+                @if (selectedGame == "TypeRacer")
+                {
+                    <text> WPM</text>   <!-- I Added "WPM" after the score for TypeRacer -->
+                }
+                @if (selectedGame == "WordRecall")
+                {
+                    <text> Words recalled</text>    <!-- If you want to change anything what to display after your game score-->
+                }
+                @if (selectedGame == "BoardRecall")
+                {
+                    <text> Boards recalled</text>   <!-- You can do so here guys -->
+                }
+            </li>
+        }
+    </ul>
+}

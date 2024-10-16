@@ -1,12 +1,13 @@
 namespace cognify.Client.Shared.SquareBoardRecall
 {
-    public enum GameState
+    public enum GameDifficulty
     {
-        NotStarted,
-        InProgress,
-        Paused,
-        GameOver
+        Easy,
+        Medium,
+        Hard
     }
+    public record PlayerStats(string UserName, double Score, GameDifficulty Difficulty);
+
     public class SquareBoardRecallGame
     {
         

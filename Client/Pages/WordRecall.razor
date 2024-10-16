@@ -125,6 +125,8 @@ else
 				GameStatistics = await response.Content.ReadFromJsonAsync<WordRecallStatistics>();
 
 			highscore = await Http.GetFromJsonAsync<int>("api/WordRecall/highscore");
+			var gameResult = new GameResult(GameType.WordRecall, GameStatistics.Score, "Player1"); 
+			await Http.PostAsJsonAsync("/api/LeaderBoard/add-result", gameResult);
 			}
 		}
 }

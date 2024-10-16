@@ -20,5 +20,11 @@ namespace cognify.Server.Controllers
             var results = _gameResultService.GetResults();
             return Ok(results);
         }
+        [HttpPost("add-result")]
+        public ActionResult AddResult([FromBody] GameResult result)
+        {
+            _gameResultService.AddResult(result);
+            return Ok("Game result added successfully.");
+        }
     }
 }

@@ -10,13 +10,12 @@ namespace cognify.Client.Pages
         private bool isHowToPlayVisible = false;
 
         private string currentWord;
-        private List<string> seenWords = new List<string>();
+        private List<string> seenWords = new();
         private int highscore = 0;
 
         WordRecallStatistics? GameStatistics = null;
 
-        [Inject]
-        private HttpClient Http { get; set; }
+        [Inject] private HttpClient Http { get; set; }
 
         private async Task StartGame()
         {
@@ -96,8 +95,15 @@ namespace cognify.Client.Pages
                 if (response.IsSuccessStatusCode)
                     GameStatistics = await response.Content.ReadFromJsonAsync<WordRecallStatistics>();
 
-                highscore = await Http.GetFromJsonAsync<int>("api/WordRecall/highscore");
+                await PostGameResult();
             }
+        }
+
+        private async Task PostGameResult()
+        {
+            var gameResult = new GameResult(GameType.WordRecall, GameStatistics.Score, "Player1"); 
+
+            await Http.PostAsJsonAsync("/api/LeaderBoard/add-result", gameResult);
         }
     }
 }

@@ -72,6 +72,7 @@ namespace cognify.Server.Controllers
         public ActionResult<int> GetHighscore() => sessionHighscore;
 
         [HttpGet("is-finished")]
+        // ReSharper disable once UnusedMember.Global
         public ActionResult<bool> IsGameFinished()
         {
             bool isFinished = GameStatistics.IsGameFinished();

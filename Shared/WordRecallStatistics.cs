@@ -6,6 +6,7 @@
         InProgress,
         Finished,
     }
+
     public class WordRecallStatistics
     {
         public int Score { get; set; }

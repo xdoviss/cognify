@@ -38,6 +38,5 @@ public class SquareBoardRecallController : ControllerBase
 
     public record Card(int Id, string? Image)
     {
-        public bool IsFlipped { get; set; } = false;
     }
 }

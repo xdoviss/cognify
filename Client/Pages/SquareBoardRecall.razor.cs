@@ -1,33 +1,47 @@
 using System.Net.Http.Json;
 using cognify.Client.Shared.SquareBoardRecall;
+using Microsoft.AspNetCore.Components;
+using cognify.Shared;
 
 namespace cognify.Client.Pages
 {
     public partial class SquareBoardRecall
     {
         private SquareBoardRecallGame game = new SquareBoardRecallGame();
+        private GameDifficulty selectedDifficulty = GameDifficulty.Easy;
+        private void OnDifficultyChange(ChangeEventArgs e)
+        {
+            if (Enum.TryParse<GameDifficulty>(e.Value.ToString(), out var difficulty))
+            {
+                selectedDifficulty = difficulty;
+            }
+        }
 
         private async Task StartGame()
         {
             game.IsGameStarted = true;
             game.ResetGameState();
-
-            await InitializeGame();
-
-            foreach (var card in game.Cards)
+            switch (selectedDifficulty)
             {
-                card.IsFlipped = true;
+                case GameDifficulty.Easy:
+                    game.Health = 5;
+                    break;
+                case GameDifficulty.Medium:
+                    game.Health = 3;
+                    break;
+                case GameDifficulty.Hard:
+                    game.Health = 1;
+                    break;
             }
+            await InitializeGame(difficultyLevel: game.difficultyLevel);
+            await FlipAllCards(true);
             game.UpdateStatusMessage("Memorize the cards!");
             game.CanFlip = false;
             StateHasChanged();
+            int memorizationTime = 3000;
+            await Task.Delay(memorizationTime);
 
-            await Task.Delay(3000);
-
-            foreach (var card in game.Cards)
-            {
-                card.IsFlipped = false;
-            }
+            await FlipAllCards(false);
 
             game.UpdateStatusMessage("Start matching the cards!");
             game.CanFlip = true;
@@ -38,18 +52,17 @@ namespace cognify.Client.Pages
         {
             if (!game.CanFlip || card.IsFlipped)
                 return;
-            {
-                card.IsFlipped = true;
 
-                if (game.FirstFlippedCard == null)
-                {
-                    game.FirstFlippedCard = card;
-                }
-                else if (game.SecondFlippedCard == null)
-                {
-                    game.SecondFlippedCard = card;
-                    CheckForMatch();
-                }
+            card.IsFlipped = true;
+
+            if (game.FirstFlippedCard == null)
+            {
+                game.FirstFlippedCard = card;
+            }
+            else if (game.SecondFlippedCard == null)
+            {
+                game.SecondFlippedCard = card;
+                CheckForMatch();
             }
         }
 
@@ -63,7 +76,6 @@ namespace cognify.Client.Pages
                     game.UpdateStatusMessage("It's a match!");
                     game.ResetFlippedCards();
                     StateHasChanged();
-
                     if (game.Cards.All(c => c.IsFlipped))
                     {
                         game.UpdateStatusMessage("All matched! Starting new round...");
@@ -74,14 +86,13 @@ namespace cognify.Client.Pages
                 else
                 {
                     game.CanFlip = false;
-
                     game.Health--;
                     game.UpdateStatusMessage("No match!");
 
                     if (game.Health <= 0)
                     {
                         game.UpdateStatusMessage("Game Over!");
-                        EndGame();
+                        await EndGame();
                         return;
                     }
 
@@ -97,11 +108,36 @@ namespace cognify.Client.Pages
             }
         }
 
-        private async Task InitializeGame()
+        private async Task InitializeGame(int difficultyLevel = 1, GameDifficulty difficulty = GameDifficulty.Easy, int memorizationTime = 5000)
         {
+            switch (difficulty)
+            {
+                case GameDifficulty.Easy:
+                    memorizationTime = 3000;
+                    break;
+                case GameDifficulty.Medium:
+                    memorizationTime = 2000;
+                    break;
+                case GameDifficulty.Hard:
+                    memorizationTime = 1000;
+                    break;
+            }
+
+            memorizationTime -= (difficultyLevel * 500);
+            if (memorizationTime < 500)
+            {
+                memorizationTime = 500;
+            }
+
             try
             {
                 game.Cards = await Http.GetFromJsonAsync<List<SquareBoardRecallGame.Card>>("/api/SquareBoardRecall/initialize-game");
+                game.UpdateStatusMessage($"Level {difficultyLevel}: Memorize the cards!");
+                await FlipAllCards(true);
+                await Task.Delay(memorizationTime);
+                await FlipAllCards(false);
+                game.CanFlip = true;
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -111,32 +147,62 @@ namespace cognify.Client.Pages
 
         private async Task StartNewRound()
         {
-            await InitializeGame();
-
-            foreach (var card in game.Cards)
-            {
-                card.IsFlipped = true;
-            }
-            game.UpdateStatusMessage("Memorize the cards!");
+            game.difficultyLevel++;
+            
+            await InitializeGame(difficultyLevel: game.difficultyLevel, memorizationTime: 5000);
+            await FlipAllCards(true);
+            game.UpdateStatusMessage($"Level {game.difficultyLevel}: Memorize the cards!");
             StateHasChanged();
             game.CanFlip = false;
-            await Task.Delay(3000);
-
-            foreach (var card in game.Cards)
+            int memorizationTime = 5000;
+            switch (selectedDifficulty)
             {
-                card.IsFlipped = false;
+                case GameDifficulty.Easy:
+                    memorizationTime = 3000;
+                    break;
+                case GameDifficulty.Medium:
+                    memorizationTime = 2000;
+                    break;
+                case GameDifficulty.Hard:
+                    memorizationTime = 1000;
+                    break;
             }
+            int change = memorizationTime - (game.difficultyLevel * 500);
+            if (change < 500)
+            {
+                memorizationTime = 500;
+            }
+            await Task.Delay(memorizationTime);
+
+            await FlipAllCards(false);
 
             game.UpdateStatusMessage("New round started! Match the cards!");
             game.CanFlip = true;
             StateHasChanged();
         }
 
-        private void EndGame()
+        private async Task EndGame()
         {
             game.IsGameStarted = false;
             game.UpdateStatusMessage("Game Over! Click 'Start' to try again.");
+            await PostGameResult();
+            game.ResetGameState();
+        }
+        private async Task PostGameResult()
+        {
+            var gameResult = new GameResult(GameType.BoardRecall, game.Score, "Player1"); 
+
+            await Http.PostAsJsonAsync("/api/LeaderBoard/add-result", gameResult);
+        }
+        
+
+        private async Task FlipAllCards(bool flip)
+        {
+            foreach (var card in game.Cards)
+            {
+                card.IsFlipped = flip;
+            }
+            await InvokeAsync(StateHasChanged);
         }
     }
 }
-

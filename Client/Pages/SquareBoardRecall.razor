@@ -1,10 +1,17 @@
 @page "/board-recall"
 @inject HttpClient Http
 @using cognify.Client.Shared.SquareBoardRecall
+@using Microsoft.AspNetCore.Components;
 <h3>Square Board Recall</h3>
 
 @if (!game.IsGameStarted)
 {
+    <h3>Select Difficulty</h3>
+    <select @onchange="OnDifficultyChange">
+        <option value="Easy">Easy</option>
+        <option value="Medium">Medium</option>
+        <option value="Hard">Hard</option>
+    </select>
     <button @onclick="StartGame">Start</button>
 }
 else

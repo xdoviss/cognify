@@ -5,11 +5,11 @@ namespace cognify.Client.Shared.SquareBoardRecall
         public static void ResetGameState(this SquareBoardRecallGame game)
         {
             game.Score = 0;
-            game.Health = 3;
             game.FirstFlippedCard = null;
             game.SecondFlippedCard = null;
             game.StatusMessage = "Game started. Memorize the cards!";
             game.CanFlip = false;
+           
         }
         public static void UpdateStatusMessage(this SquareBoardRecallGame game, string message)
         {

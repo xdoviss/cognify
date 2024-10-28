@@ -6,7 +6,6 @@ namespace cognify.Client.Shared.SquareBoardRecall
         Medium,
         Hard
     }
-    public record PlayerStats(string UserName, double Score, GameDifficulty Difficulty);
 
     public class SquareBoardRecallGame
     {

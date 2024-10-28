@@ -98,7 +98,7 @@ namespace cognify.Client.Pages
             double WPM = Math.Round(totalWords / (ElapsedTime / 60.0), 2);
             var gameResult = new GameResult(GameType.TypeRacer, WPM);
             System.Console.WriteLine(WPM);
-            await Http.PostAsJsonAsync("api/LeaderBoard/add-result", gameResult);
+            await Http.PostAsJsonAsync("api/LeaderBoard/results", gameResult);
         }
     }
 }

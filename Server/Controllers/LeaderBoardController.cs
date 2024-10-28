@@ -16,8 +16,6 @@ namespace cognify.Server.Controllers
         {
             _gameResultService = gameResultService;
         }
-
-        // GET: api/LeaderBoard/results - Retrieve all GameResults
         [HttpGet("results")]
         public async Task<ActionResult<List<GameResult>>> GetGameResults()
         {
@@ -25,7 +23,6 @@ namespace cognify.Server.Controllers
             return Ok(results);
         }
 
-        // GET: api/LeaderBoard/results/{id} - Retrieve a specific GameResult by ID
         [HttpGet("results/{id}")]
         public async Task<ActionResult<GameResult>> GetGameResultById(int id)
         {
@@ -37,15 +34,12 @@ namespace cognify.Server.Controllers
             return Ok(result);
         }
 
-        // POST: api/LeaderBoard/results - Create a new GameResult
         [HttpPost("results")]
         public async Task<ActionResult<GameResult>> AddGameResult([FromBody] GameResult gameResult)
         {
             await _gameResultService.AddResultAsync(gameResult);
             return CreatedAtAction(nameof(GetGameResultById), new { id = gameResult.Id }, gameResult);
         }
-
-        // PUT: api/LeaderBoard/results/{id} - Update an existing GameResult
         [HttpPut("results/{id}")]
         public async Task<IActionResult> UpdateGameResult(int id, GameResult updatedResult)
         {
@@ -57,8 +51,6 @@ namespace cognify.Server.Controllers
             await _gameResultService.UpdateResultAsync(updatedResult);
             return NoContent();
         }
-
-        // DELETE: api/LeaderBoard/results/{id} - Delete a GameResult by ID
         [HttpDelete("results/{id}")]
         public async Task<IActionResult> DeleteGameResult(int id)
         {

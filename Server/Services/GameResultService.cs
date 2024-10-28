@@ -14,7 +14,6 @@ public class GameResultService
         _context = context;
     }
 
-    // CREATE: Add a new GameResult
     public async Task AddResultAsync(GameResult result)
     {
         Console.WriteLine("AddResultAsync called with: " + result.Score);
@@ -23,26 +22,21 @@ public class GameResultService
         Console.WriteLine("Score saved to database.");
     }
 
-    // READ: Get all GameResults
     public async Task<List<GameResult>> GetResultsAsync()
     {
         return await _context.GameResults.ToListAsync();
     }
-
-    // READ: Get a single GameResult by ID
     public async Task<GameResult> GetResultByIdAsync(int id)
     {
         return await _context.GameResults.FindAsync(id);
     }
 
-    // UPDATE: Update an existing GameResult
     public async Task UpdateResultAsync(GameResult result)
     {
         _context.GameResults.Update(result);
         await _context.SaveChangesAsync();
     }
 
-    // DELETE: Delete a GameResult by ID
     public async Task DeleteResultAsync(int id)
     {
         var result = await _context.GameResults.FindAsync(id);

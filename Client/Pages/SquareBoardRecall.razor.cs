@@ -192,7 +192,7 @@ namespace cognify.Client.Pages
         {
             var gameResult = new GameResult(GameType.BoardRecall, game.Score, "Player1"); 
 
-            await Http.PostAsJsonAsync("/api/LeaderBoard/add-result", gameResult);
+            await Http.PostAsJsonAsync("/api/LeaderBoard/results", gameResult);
         }
         
 

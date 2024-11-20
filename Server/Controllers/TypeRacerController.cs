@@ -24,13 +24,26 @@ namespace cognify.Server.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<string>> GetRandomText()
+        public async Task<ActionResult<string>> GetProcessedText()
         {
             string randomText = await _textLoaderService.LoadRandomTextFromFileAsync();
 
             if (string.IsNullOrEmpty(randomText))
             {
                 return BadRequest("Failed to load text from a file");
+            }
+            try
+            {
+                // Using the TextProcessor to check through the text
+                var processor = new TextProcessor<TextMetadata>();
+                TextMetadata metadata = processor.ProcessText(
+                    text => new TextMetadata { OriginalText = text, WordCount = text.Split(' ').Length },
+                    randomText);
+                return Ok(metadata.OriginalText);
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest($"Validation failed: {ex.Message}");
             }
 
             return Ok(randomText);

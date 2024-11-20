@@ -18,6 +18,7 @@ namespace cognify.Client.Pages
         private string GameStatus = "Click 'Start Game' to begin.";
         private int MistakesCount = 0;
         private string HighlightedUserInput = "";
+        private int WordCount = 0;
 
         [Inject]
         private HttpClient httpClient { get; set; }
@@ -26,6 +27,8 @@ namespace cognify.Client.Pages
         {
             await LoadTargetText(); // Fetching the text from the local file
 
+
+
             IsGameStarted = true;
             UserInput = "";
             ElapsedTime = 0;
@@ -33,6 +36,7 @@ namespace cognify.Client.Pages
             StartTime = DateTime.Now;
             MistakesCount = 0;
             HighlightedUserInput = "";
+
         }
         private async Task LoadTargetText()
         {
@@ -40,11 +44,29 @@ namespace cognify.Client.Pages
             {
                 // Calling the API endpoint to get the random text from the server side
                 TargetText = await httpClient.GetStringAsync("api/TypeRacer");
+                if (string.IsNullOrWhiteSpace(TargetText))
+                {
+                    TargetText = "Error fetching text. Please try again.";
+                    WordCount = 0;
+                }
+                else
+                {
+                    var processor = new TextProcessor<TextMetadata>();
+                    TextMetadata metadata = processor.ProcessText(
+                        text => new TextMetadata { OriginalText = text, WordCount = text.Split(' ').Length },
+                        TargetText
+                    );
+                    // Processing went good, so:
+                    // Storing processed text and word count into the variables
+                    TargetText = metadata.OriginalText;
+                    WordCount = metadata.WordCount;
+                }
             }
             catch (HttpRequestException ex)
             {
                 Console.WriteLine($"Error loading text: {ex.Message}");
                 TargetText = "Error fetching text. Please try again.";
+                WordCount = 0;
             }
         }
         private void HandleInput(ChangeEventArgs e)

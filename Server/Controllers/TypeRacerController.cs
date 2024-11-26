@@ -15,11 +15,13 @@ namespace cognify.Server.Controllers
     {
         private readonly TextLoaderService _textLoaderService;
         private readonly GameResultService _gameResultService;
+        private readonly ActivePlayerService _activePlayerService;
 
-        public TypeRacerController(TextLoaderService textLoaderService, GameResultService gameResultService)
+        public TypeRacerController(TextLoaderService textLoaderService, GameResultService gameResultService, ActivePlayerService activePlayerService)
         {
             _textLoaderService = textLoaderService;
             _gameResultService = gameResultService;
+            _activePlayerService = activePlayerService;
         }
 
 
@@ -48,9 +50,22 @@ namespace cognify.Server.Controllers
 
             return Ok(randomText);
         }
+        [HttpPost("startGame")]
+        public IActionResult StartGame([FromBody] string userId)
+        {
+            // Adding a user to active players
+            _activePlayerService.AddPlayer(userId);
+            Console.WriteLine($"User created with ID: {userId}");
+            return Ok();
+        }
 
-        
-
-
+        [HttpPost("finishGame")]
+        public IActionResult FinishGame([FromBody] string userId)
+        {
+            // Remove user from active players
+            _activePlayerService.RemovePlayer(userId);
+            Console.WriteLine($"User removed with ID: {userId}");
+            return Ok();
+        }
     }
 }

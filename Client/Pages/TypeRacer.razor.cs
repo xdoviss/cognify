@@ -19,15 +19,16 @@ namespace cognify.Client.Pages
         private int MistakesCount = 0;
         private string HighlightedUserInput = "";
         private int WordCount = 0;
+        // Generating unique ID for the user
+        private string UserId = Guid.NewGuid().ToString(); 
 
         [Inject]
         private HttpClient httpClient { get; set; }
 
         private async Task StartGame()
         {
-            await LoadTargetText(); // Fetching the text from the local file
-
-
+            // Fetching the text from the local file
+            await LoadTargetText(); 
 
             IsGameStarted = true;
             UserInput = "";
@@ -36,6 +37,10 @@ namespace cognify.Client.Pages
             StartTime = DateTime.Now;
             MistakesCount = 0;
             HighlightedUserInput = "";
+
+            // Notifying server that game has started
+            await httpClient.PostAsJsonAsync("api/TypeRacer/startGame", UserId);
+
 
         }
         private async Task LoadTargetText()
@@ -121,6 +126,9 @@ namespace cognify.Client.Pages
             var gameResult = new GameResult(GameType.TypeRacer, WPM);
             System.Console.WriteLine(WPM);
             await Http.PostAsJsonAsync("api/LeaderBoard/results", gameResult);
+
+            // Notifying server that game has finished
+            await httpClient.PostAsJsonAsync("api/TypeRacer/finishGame", UserId);
         }
     }
 }

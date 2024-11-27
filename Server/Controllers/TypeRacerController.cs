@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using cognify.Shared;
 using System.IO;
 
-
-
 namespace cognify.Server.Controllers
 {
     [ApiController]

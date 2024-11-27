@@ -18,13 +18,17 @@ namespace cognify.Client.Pages
         private string GameStatus = "Click 'Start Game' to begin.";
         private int MistakesCount = 0;
         private string HighlightedUserInput = "";
+        private int WordCount = 0;
+        // Generating unique ID for the user
+        private string UserId = Guid.NewGuid().ToString(); 
 
         [Inject]
         private HttpClient httpClient { get; set; }
 
         private async Task StartGame()
         {
-            await LoadTargetText(); // Fetching the text from the local file
+            // Fetching the text from the local file
+            await LoadTargetText(); 
 
             IsGameStarted = true;
             UserInput = "";
@@ -33,6 +37,11 @@ namespace cognify.Client.Pages
             StartTime = DateTime.Now;
             MistakesCount = 0;
             HighlightedUserInput = "";
+
+            // Notifying server that game has started
+            await httpClient.PostAsJsonAsync("api/TypeRacer/startGame", UserId);
+
+
         }
         private async Task LoadTargetText()
         {
@@ -40,11 +49,29 @@ namespace cognify.Client.Pages
             {
                 // Calling the API endpoint to get the random text from the server side
                 TargetText = await httpClient.GetStringAsync("api/TypeRacer");
+                if (string.IsNullOrWhiteSpace(TargetText))
+                {
+                    TargetText = "Error fetching text. Please try again.";
+                    WordCount = 0;
+                }
+                else
+                {
+                    var processor = new TextProcessor<TextMetadata>();
+                    TextMetadata metadata = processor.ProcessText(
+                        text => new TextMetadata { OriginalText = text, WordCount = text.Split(' ').Length },
+                        TargetText
+                    );
+                    // Processing went good, so:
+                    // Storing processed text and word count into the variables
+                    TargetText = metadata.OriginalText;
+                    WordCount = metadata.WordCount;
+                }
             }
             catch (HttpRequestException ex)
             {
                 Console.WriteLine($"Error loading text: {ex.Message}");
                 TargetText = "Error fetching text. Please try again.";
+                WordCount = 0;
             }
         }
         private void HandleInput(ChangeEventArgs e)
@@ -99,6 +126,9 @@ namespace cognify.Client.Pages
             var gameResult = new GameResult(GameType.TypeRacer, WPM);
             System.Console.WriteLine(WPM);
             await Http.PostAsJsonAsync("api/LeaderBoard/results", gameResult);
+
+            // Notifying server that game has finished
+            await httpClient.PostAsJsonAsync("api/TypeRacer/finishGame", UserId);
         }
     }
 }

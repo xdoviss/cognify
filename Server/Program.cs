@@ -8,6 +8,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<TextLoaderService>(); //Added this so that TypeRacerController would work :)
 builder.Services.AddScoped<GameResultService>(); // This one for adding the GameResults
+builder.Services.AddSingleton<ActivePlayerService>();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

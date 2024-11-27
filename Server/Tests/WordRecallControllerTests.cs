@@ -73,10 +73,10 @@ public class WordRecall_IntegrationTests
         Assert.Equal(3, returnValue.Health);
 
         // Test tweaked values
-        int desiredScore = new Random().Next(0, 20);
+        int desiredScore = new Random().Next(1, 20);
 
-        for (int currentScore = 0; currentScore < desiredScore; currentScore++)
-            _controller.UpdateScore(currentScore);
+        for (int i = 0; i < desiredScore; i++)
+            _controller.UpdateScore(1);
 
         result = _controller.UpdateHealth(returnValue.Health - 1);
         okResult = Assert.IsType<OkObjectResult>(result);

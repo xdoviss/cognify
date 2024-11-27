@@ -55,13 +55,11 @@ namespace cognify.Server.Tests
         public async Task Test_StartAndFinishGame()
         {
             // 1. Start random number of games
-            int numberOfPlayers = new Random().Next(0, 5);
+            int numberOfPlayers = new Random().Next(1, 5);
             var guids = new List<string>();
 
-            while (numberOfPlayers > 0)
-            {
+            for (int i = 0; i < numberOfPlayers; i++) {
                 guids.Add(new Guid().ToString());
-                numberOfPlayers--;
             }
 
             foreach (var content in guids.Select(guid => new StringContent(JsonConvert.SerializeObject(guid), Encoding.UTF8, "application/json")))

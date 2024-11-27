@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net.Http;
+using System.Net.Http.Json;
 using cognify.Shared;
 using Microsoft.AspNetCore.Components;
 
@@ -6,7 +7,9 @@ namespace cognify.Client.Pages
 {
     public partial class WordRecall : ComponentBase
     {
-        private Random random = new Random();
+        private string UserId = Guid.NewGuid().ToString(); 
+
+        private Random random = new();
         private bool isHowToPlayVisible = false;
 
         private string currentWord;
@@ -22,6 +25,7 @@ namespace cognify.Client.Pages
             var response = await Http.PostAsync("api/WordRecall/start", null);
             if (response.IsSuccessStatusCode)
             {
+                await Http.PostAsJsonAsync("api/TypeRacer/startGame", UserId);
                 GameStatistics = await response.Content.ReadFromJsonAsync<WordRecallStatistics>();
                 await GetNewWord();
             }
@@ -91,6 +95,8 @@ namespace cognify.Client.Pages
             }
             else
             {
+                await Http.PostAsJsonAsync("api/TypeRacer/finishGame", UserId);
+
                 var response = await Http.PostAsJsonAsync("api/WordRecall/update-state", GameState.Finished);
                 if (response.IsSuccessStatusCode)
                     GameStatistics = await response.Content.ReadFromJsonAsync<WordRecallStatistics>();

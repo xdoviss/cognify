@@ -38,3 +38,17 @@ public class SquareBoard_UnitTests
         Assert.NotEqual(cards1.Select(c => c.Id), cards2.Select(c => c.Id));
     }
 }
+
+public class SquareBoard_IntegrationTest
+{
+    [Fact]
+    public void Test_GameFunctionality()
+    {
+        var unitTests = new SquareBoard_UnitTests();
+
+        unitTests.Test_ReturnsDeck();
+        unitTests.Test_ShufflesDeck();
+        unitTests.Test_ShufflesDeck();
+        unitTests.Test_ShufflesDeck();
+    }
+}

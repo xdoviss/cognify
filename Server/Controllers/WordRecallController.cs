@@ -1,4 +1,6 @@
-﻿using cognify.Shared;
+﻿using System.Text.Json;
+
+using cognify.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cognify.Server.Controllers
@@ -91,11 +93,11 @@ namespace cognify.Server.Controllers
 
         private static async Task<string> GetNewWord()
         {
-            var response = await HttpClient.GetStringAsync("https://random-word-api.herokuapp.com/word");
-            var words = System.Text.Json.JsonSerializer.Deserialize<List<string>>(response);
-            var word = words[0];
+            var response = await HttpClient.GetStringAsync("https://random-word-api.vercel.app/api?words=1");
 
-            return word;
+            using JsonDocument doc = JsonDocument.Parse(response);
+            JsonElement root = doc.RootElement;
+            return root[0].GetString();
         }
     }
 }

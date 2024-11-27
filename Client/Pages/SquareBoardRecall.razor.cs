@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Net.Http.Json;
 using cognify.Client.Shared.SquareBoardRecall;
 using Microsoft.AspNetCore.Components;
@@ -9,6 +10,8 @@ namespace cognify.Client.Pages
     {
         private SquareBoardRecallGame game = new SquareBoardRecallGame();
         private GameDifficulty selectedDifficulty = GameDifficulty.Easy;
+        private string UserId = Guid.NewGuid().ToString();
+        [Inject] private HttpClient HttpClientInstance { get; set; }
         private void OnDifficultyChange(ChangeEventArgs e)
         {
             if (Enum.TryParse<GameDifficulty>(e.Value.ToString(), out var difficulty))
@@ -19,6 +22,7 @@ namespace cognify.Client.Pages
 
         private async Task StartGame()
         {
+            await HttpClientInstance.PostAsJsonAsync("api/TypeRacer/startGame", UserId);
             game.IsGameStarted = true;
             game.ResetGameState();
             switch (selectedDifficulty)
@@ -183,6 +187,7 @@ namespace cognify.Client.Pages
 
         private async Task EndGame()
         {
+            await HttpClientInstance.PostAsJsonAsync("api/TypeRacer/finishGame", UserId);
             game.IsGameStarted = false;
             game.UpdateStatusMessage("Game Over! Click 'Start' to try again.");
             await PostGameResult();
@@ -204,5 +209,6 @@ namespace cognify.Client.Pages
             }
             await InvokeAsync(StateHasChanged);
         }
+
     }
 }

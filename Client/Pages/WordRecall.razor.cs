@@ -1,5 +1,7 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Json;
+using System.Security.AccessControl;
+
 using cognify.Shared;
 using Microsoft.AspNetCore.Components;
 
@@ -110,6 +112,11 @@ namespace cognify.Client.Pages
             var gameResult = new GameResult(GameType.WordRecall, GameStatistics.Score, "Player1"); 
 
             await Http.PostAsJsonAsync("/api/LeaderBoard/results", gameResult);
+
+            var allResults = await Http.GetFromJsonAsync<List<GameResult>>("api/LeaderBoard/results");
+            var wordRecallResults = allResults.Where(r => r.GameType == GameType.WordRecall).ToList();
+
+            highscore = (int)wordRecallResults.Max(gr => gr.Score);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 
+using cognify.Server.Exceptions;
 using cognify.Shared;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +46,7 @@ namespace cognify.Server.Controllers
                 GameStatistics.Score += score;
                 return Ok(GameStatistics);
             }
-            return BadRequest("Game is not in progress.");
+            throw new GameNotInProgress("Attempting to update score, while game is not in progress.");
         }
 
         [HttpPost("update-health")]
@@ -57,7 +58,8 @@ namespace cognify.Server.Controllers
                 GameStatistics.Health = health;
                 return Ok(GameStatistics);
             }
-            return BadRequest("Game is not in progress.");
+
+            throw new GameNotInProgress("Attempting to change health, while game is not in progress.");
         }
 
         [HttpPost("update-state")]

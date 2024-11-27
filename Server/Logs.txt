@@ -1,0 +1,2 @@
+11/27/2024 5:12:00 PM: Attempting to update score, while game is not in progress.
+11/27/2024 5:18:14 PM: Attempting to update score, while game is not in progress.

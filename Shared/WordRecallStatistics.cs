@@ -9,6 +9,7 @@
 
     public class WordRecallStatistics
     {
+        public int Id { get; set; }
         public int Score { get; set; }
         public int Health { get; set; }
         public GameState State { get; set; }

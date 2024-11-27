@@ -1,12 +1,18 @@
 using Microsoft.AspNetCore.ResponseCompression;
-
+using Microsoft.EntityFrameworkCore;
+using cognify.Server.Data;
+using cognify.Server.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<TextLoaderService>(); //Added this so that TypeRacerController would work :)
-builder.Services.AddSingleton<GameResultService>(); // This one for adding the GameResults
+builder.Services.AddScoped<GameResultService>(); // This one for adding the GameResults
+builder.Services.AddSingleton<ActivePlayerService>();
 
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCors(options =>
 {

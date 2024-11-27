@@ -1,0 +1,28 @@
+﻿@page "/active-players"
+
+@inject HttpClient HttpClient
+
+<p>Active Players: @ActivePlayerCount</p>
+
+@code {
+    private int ActivePlayerCount;
+    private Timer? _timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshPlayerCount();
+        _timer = new Timer(async _ => await RefreshPlayerCount(), null, 0, 5000); // Refresh every 5 seconds
+    }
+
+    private async Task RefreshPlayerCount()
+    {
+        ActivePlayerCount = await HttpClient.GetFromJsonAsync<int>("api/Game/activePlayerCount");
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}
+

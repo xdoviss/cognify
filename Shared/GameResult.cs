@@ -2,6 +2,7 @@ namespace cognify.Shared
 {
     public class GameResult
     {
+        public int Id { get; set; } 
         public GameType GameType { get; set; }  // Enum to specify which game we register the score to
         public double Score { get; set; }       // Common score property for all games
         public string UserName { get; set; }

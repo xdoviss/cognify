@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using cognify.Shared;
+using System.Linq;
+
 
 
 
@@ -19,6 +21,12 @@ namespace cognify.Client.Pages
         private int MistakesCount = 0;
         private string HighlightedUserInput = "";
         private int WordCount = 0;
+
+
+        private string[] TargetWords;
+        private int CurrentWordIndex = 0;
+        private bool IsMistakeMadeInCurrentWord = false;
+        private string CurrentWord => CurrentWordIndex < TargetWords.Length ? TargetWords[CurrentWordIndex] : "";
         // Generating unique ID for the user
         private string UserId = Guid.NewGuid().ToString(); 
 
@@ -36,7 +44,8 @@ namespace cognify.Client.Pages
             GameStatus = "Keep typing...";
             StartTime = DateTime.Now;
             MistakesCount = 0;
-            HighlightedUserInput = "";
+            CurrentWordIndex = 0;
+            IsMistakeMadeInCurrentWord = false;
 
             // Notifying server that game has started
             await httpClient.PostAsJsonAsync("api/TypeRacer/startGame", UserId);
@@ -56,15 +65,14 @@ namespace cognify.Client.Pages
                 }
                 else
                 {
-                    var processor = new TextProcessor<TextMetadata>();
-                    TextMetadata metadata = processor.ProcessText(
-                        text => new TextMetadata { OriginalText = text, WordCount = text.Split(' ').Length },
-                        TargetText
-                    );
-                    // Processing went good, so:
-                    // Storing processed text and word count into the variables
-                    TargetText = metadata.OriginalText;
-                    WordCount = metadata.WordCount;
+                    //var processor = new TextProcessor<TextMetadata>();
+                    //TextMetadata metadata = processor.ProcessText(
+                    //    text => new TextMetadata { OriginalText = text, WordCount = text.Split(' ').Length },
+                    //    TargetText
+                    //);
+                    // Currently not needed code above (but in the future if we needed to bring it back)
+                    TargetWords = TargetText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    WordCount = TargetWords.Length;
                 }
             }
             catch (HttpRequestException ex)
@@ -74,17 +82,91 @@ namespace cognify.Client.Pages
                 WordCount = 0;
             }
         }
-        private void HandleInput(ChangeEventArgs e)
+        private async void HandleInput(ChangeEventArgs e)
         {
-            UserInput = e.Value?.ToString() ?? "";
-            CheckUserInput(); // Call the check method after updating the UserInput
-        }
+            string newInput = e.Value?.ToString() ?? "";
 
-        private async void CheckUserInput()
-        {
-            if (UserInput.Equals(TargetText, StringComparison.OrdinalIgnoreCase))
+            if (newInput.EndsWith(" ")) // User pressed space
             {
-                await FinishGame(); // Call FinishGame if the input matches the target text
+                if (newInput.Trim() == CurrentWord) // Check if current word is correctly typed
+                {
+                    UserInput = ""; // Clear user input to start the next word
+                    CurrentWordIndex++; // Move to next word
+                    IsMistakeMadeInCurrentWord = false;
+
+                    
+                }
+            }
+            else
+            {
+                UserInput = newInput;
+                CheckCurrentWord();
+            }
+            // Check if user finished typing all words
+            if (CurrentWordIndex == TargetWords.Length -1 && UserInput.Trim() == CurrentWord)
+            {
+                await FinishGame();
+                return;
+                
+            }
+
+        }
+        private void CheckCurrentWord()
+        {
+            if (CurrentWordIndex >= TargetWords.Length) return;
+
+            string expectedWord = CurrentWord;
+            if (!UserInput.Equals(expectedWord[..Math.Min(UserInput.Length, expectedWord.Length)], StringComparison.Ordinal))
+            {
+                if (!IsMistakeMadeInCurrentWord)
+                {
+                    MistakesCount++;
+                    IsMistakeMadeInCurrentWord = true;
+                }
+            }
+            HighlightCurrentProgress();
+        }
+        private void HighlightCurrentProgress()
+        {
+            HighlightedUserInput = "";
+
+            for (int i = 0; i < TargetWords.Length; i++)
+            {
+                if (i < CurrentWordIndex)
+                {
+                    HighlightedUserInput += $"<span style='color:green;'>{TargetWords[i]} </span>";
+                }
+                else if (i == CurrentWordIndex)
+                {
+                    if (UserInput.Length > 0)
+                    {
+                        for (int j = 0; j < UserInput.Length; j++)
+                        {
+                            if (j < TargetWords[i].Length && UserInput[j] == TargetWords[i][j])
+                            {
+                                HighlightedUserInput += $"<span style='color:green;'>{UserInput[j]}</span>";
+                            }
+                            else
+                            {
+                                HighlightedUserInput += $"<span style='color:red;'>{UserInput[j]}</span>";
+                            }
+                        }
+
+                        if (UserInput.Length < TargetWords[i].Length)
+                        {
+                            HighlightedUserInput += $"<span style='color:gray;'>{TargetWords[i][UserInput.Length..]}</span>";
+                        }
+                    }
+                    else
+                    {
+                        HighlightedUserInput += TargetWords[i];
+                    }
+                    HighlightedUserInput += " ";
+                }
+                else
+                {
+                    HighlightedUserInput += $"{TargetWords[i]} ";
+                }
             }
         }
 
@@ -92,33 +174,8 @@ namespace cognify.Client.Pages
         {
             IsGameStarted = false;
             ElapsedTime = (DateTime.Now - StartTime).TotalSeconds;
-
-            MistakesCount = 0;
             HighlightedUserInput = "";
-
-            for (int i = 0; i < Math.Max(UserInput.Length, TargetText.Length); i++)
-            {
-                if (i >= TargetText.Length)
-                {
-                    HighlightedUserInput += $"<span style='color:red;'>{UserInput[i]}</span>";
-                    MistakesCount++;
-                }
-                else if (i >= UserInput.Length)
-                {
-                    HighlightedUserInput += $"<span style='color:red;'>_</span>";
-                    MistakesCount++;
-                }
-                else if (UserInput[i] != TargetText[i])
-                {
-                    HighlightedUserInput += $"<span style='color:red;'>{UserInput[i]}</span>";
-                    MistakesCount++;
-                }
-                else
-                {
-                    HighlightedUserInput += UserInput[i];
-                }
-            }
-
+            UserInput = "";
             GameStatus = $"You made {MistakesCount} mistake(s) and finished in {ElapsedTime} seconds.";
 
             double totalWords = UserInput.Length / 5.0;

@@ -1,15 +1,41 @@
-@page "/type-racer"
+﻿@page "/type-racer"
 @inject HttpClient Http
 
-<h1>Typeracer Game</h1>
+<link href="css/TypeRacer.css" rel="stylesheet">
 
-<div>
-    <p>@TargetText</p>
-    <input value="@UserInput" @oninput="HandleInput" disabled="@(!IsGameStarted)" />
-    <p>Time: @ElapsedTime seconds</p>
-    <p>@GameStatus</p>
-    <p>Errors: @MistakesCount</p>
-    <p>@(new MarkupString(HighlightedUserInput))</p>
-    <button @onclick="StartGame" disabled="@IsGameStarted">Start Game</button>
-    <p>Total Words: @WordCount</p>
+<div class="typeracer-container">
+    <header class="typeracer-header">
+        <h1>TypeRacer Game</h1>
+    </header>
+
+    <div class="game-area">
+        <div class="target-text" oncontextmenu="return false;">
+            <p>@TargetText</p>
+        </div>
+
+        <div class="user-input-area">
+            <input class="user-input-box"
+                   placeholder="Start typing here..."
+                   value="@UserInput"
+                   @oninput="HandleInput"
+                   disabled="@(!IsGameStarted)" />
+        </div>
+
+        <div class="game-status">
+            <p>⏱️ Time: <span class="status-value">@ElapsedTime</span> seconds</p>
+            <p>❌ Mistakes: <span class="status-value">@MistakesCount</span></p>
+            <p>Status: <span class="status-value">@GameStatus</span></p>
+            <p>Words to Type: <span class="status-value">@WordCount</span></p>
+        </div>
+
+        <div class="highlighted-user-input">
+            <p>Progress: @(new MarkupString(HighlightedUserInput))</p>
+        </div>
+
+        <div class="button-container">
+            <button class="btn start-game-btn" @onclick="StartGame" disabled="@IsGameStarted">
+                🚀 Start Game
+            </button>
+        </div>
+    </div>
 </div>

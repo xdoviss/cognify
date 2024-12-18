@@ -1,0 +1,109 @@
+﻿/* General page layout */
+.typeracer-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+.typeracer-header {
+    text-align: center;
+    background-color: #3A3A8F;
+    padding: 20px;
+    border-radius: 10px;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+    .typeracer-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px #000;
+    }
+
+/* Game Area */
+.game-area {
+    background-color: #f4f4f9;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.target-text {
+    font-size: 1.2rem;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    color: #333;
+    user-select: none;
+    -webkit-user-select: none; 
+    -ms-user-select: none;
+}
+
+.user-input-area {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.user-input-box {
+    width: 90%;
+    padding: 10px 15px;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    border: 2px solid #3A3A8F;
+    outline: none;
+    transition: border 0.2s;
+}
+
+    .user-input-box:focus {
+        border-color: #F39C12;
+    }
+
+.game-status {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px 0;
+}
+
+.status-value {
+    font-weight: bold;
+    color: #3A3A8F;
+}
+
+.highlighted-user-input p {
+    background-color: #EAEAEA;
+    padding: 15px;
+    border-radius: 10px;
+    font-family: monospace;
+    overflow-x: hidden; 
+    white-space: normal; 
+    word-wrap: break-word;
+}
+
+.button-container {
+    text-align: center;
+}
+
+.start-game-btn {
+    background-color: #3A3A8F;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+    .start-game-btn:hover {
+        background-color: #F39C12;
+    }
+
+    .start-game-btn:disabled {
+        background-color: #999;
+        cursor: not-allowed;
+    }

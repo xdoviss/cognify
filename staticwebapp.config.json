@@ -23,6 +23,9 @@
     },
     {
       "route": "/api/update-score"
+    },
+    {
+      "route": "/api/update-health"
     }
   ]
 }

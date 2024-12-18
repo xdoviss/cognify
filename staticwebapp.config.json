@@ -1,12 +1,37 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/api/*"]
+    "exclude": [
+      "/api/*"
+    ]
   },
   "routes": [
     {
       "route": "/api/*",
-      "allowedRoles": ["anonymous"]
+      "allowedRoles": [
+        "anonymous"
+      ]
+    },
+    {
+      "route": "/api/WordRecall/*"
+    },
+    {
+      "route": "/api/WordRecall/start"
+    },
+    {
+      "route": "/api/WordRecall/update-state"
+    },
+    {
+      "route": "/api/WordRecall/update-score"
+    },
+    {
+      "route": "/api/WordRecall/update-health"
+    },
+    {
+      "route": "/api/WordRecall/highscore"
+    },
+    {
+      "route": "/api/WordRecall/is-finished"
     }
   ]
 }

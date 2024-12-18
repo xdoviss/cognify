@@ -48,7 +48,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseCors("AllowAll");
+app.UseCors(builder =>
+    builder.WithOrigins("https://black-ocean-02025cd03.4.azurestaticapps.net/", "http://localhost:5296").AllowAnyHeader().AllowAnyMethod());
 
 app.MapRazorPages();
 app.MapControllers();

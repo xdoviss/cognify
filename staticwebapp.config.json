@@ -20,6 +20,9 @@
     },
     {
       "route": "/api/update-state"
+    },
+    {
+      "route": "/api/update-score"
     }
   ]
 }

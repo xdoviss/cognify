@@ -13,7 +13,7 @@
       ]
     },
     {
-      "route": "/api/WordRecall"
+      "route": "/api/WordRecall/*"
     },
     {
       "route": "/api/WordRecall/start"

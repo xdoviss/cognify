@@ -19,7 +19,7 @@
       "route": "/api/WordRecall/start"
     },
     {
-      "route": "/api/update-state"
+      "route": "/api/WordRecall/update-state"
     },
     {
       "route": "/api/WordRecall/update-score"

@@ -8,6 +8,17 @@
   "routes": [
     {
       "route": "/api/*",
+      "methods": [
+        "get",
+        "post",
+        "head",
+        "put",
+        "connect",
+        "delete",
+        "options",
+        "patch",
+        "trace"
+      ],
       "allowedRoles": [
         "anonymous"
       ]

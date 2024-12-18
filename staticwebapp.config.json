@@ -26,6 +26,9 @@
     },
     {
       "route": "/api/update-health"
+    },
+    {
+      "route": "/api/highscore"
     }
   ]
 }

@@ -17,6 +17,9 @@
     },
     {
       "route": "/api/WordRecall/start"
+    },
+    {
+      "route": "/api/update-state"
     }
   ]
 }

@@ -28,7 +28,7 @@
       "route": "/api/update-health"
     },
     {
-      "route": "/api/highscore"
+      "route": "/api/WordRecall/highscore"
     },
     {
       "route": "/api/WordRecall/is-finished"

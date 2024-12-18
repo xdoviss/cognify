@@ -107,3 +107,23 @@
         background-color: #999;
         cursor: not-allowed;
     }
+.home-button {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.home-btn {
+    background-color: #FF5733; /* Different color for the Home button */
+    color: #fff;
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+    .home-btn:hover {
+        background-color: #C70039;
+    }
+

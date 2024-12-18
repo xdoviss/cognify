@@ -5,6 +5,14 @@
     },
     "routes": [
         {
+            "route": "/api/WordRecall/*",
+            "allowedRoles": [ "anonymous" ]
+        },
+        {
+            "route": "/api/WordRecall",
+            "allowedRoles": [ "anonymous" ]
+        },
+        {
             "route": "/api/*",
             "allowedRoles": [ "anonymous" ]
         }

@@ -22,7 +22,7 @@
       "route": "/api/update-state"
     },
     {
-      "route": "/api/update-score"
+      "route": "/api/WordRecall/update-score"
     },
     {
       "route": "/api/WordRecall/update-health"

@@ -118,5 +118,11 @@ namespace cognify.Client.Pages
 
             highscore = (int)wordRecallResults.Max(gr => gr.Score);
         }
+        [Inject] private NavigationManager Navigation { get; set; } // Add NavigationManager
+
+        private void NavigateHome()
+        {
+            Navigation.NavigateTo("/"); // Navigate to the home page
+        }
     }
 }

@@ -209,6 +209,13 @@ namespace cognify.Client.Pages
             }
             await InvokeAsync(StateHasChanged);
         }
+        [Inject] private NavigationManager Navigation { get; set; } // Add NavigationManager
+
+        private void NavigateHome()
+        {
+            Navigation.NavigateTo("/"); // Navigate to the home page
+        }
+
 
     }
 }

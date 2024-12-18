@@ -46,7 +46,7 @@ namespace cognify.Client.Pages
         {
             try
             {
-                currentWord = await Http.GetStringAsync("http://localhost:5296/api/WordRecall/");
+                currentWord = await Http.GetStringAsync("api/WordRecall/");
             }
             catch (Exception ex)
             {

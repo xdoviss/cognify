@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components;
 <h3>Square Board Recall</h3>
 
+<button class="home-button" @onclick="NavigateHome">Home</button>
 @if (!game.IsGameStarted)
 {
     <h3>Select Difficulty</h3>

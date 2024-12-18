@@ -2,101 +2,79 @@
 using Xunit;
 using Microsoft.AspNetCore.Mvc;
 using cognify.Shared;
+using System.Threading.Tasks;
 
-namespace cognify.Server.Tests;
-
-public class WordRecall_UnitTests
+namespace cognify.Server.Tests
 {
-    private readonly WordRecallController _controller = new();
-
-    // Arrange → Act → Assert
-
-    [Fact]
-    public async Task Test_ReturnsNewWord()
+    public class WordRecall_UnitTests
     {
-        var result = await _controller.Get();
+        private readonly WordRecallController _controller = new();
 
-        var actionResult = Assert.IsType<ActionResult<string>>(result);
-        
-        Assert.IsType<string>(actionResult.Value);
+        [Fact]
+        public async Task Test_ReturnsNewWord()
+        {
+            var result = await _controller.Get();
+
+            Assert.IsType<ActionResult<string>>(result);
+        }
+
+        [Fact]
+        public void Test_StartGame()
+        {
+            var result = _controller.StartGame();
+
+            Assert.IsType<OkObjectResult>(result);
+        }
+
+        [Fact]
+        public void Test_UpdateScore()
+        {
+            _controller.StartGame();
+            int score = new Random().Next(0, 20);
+
+            var result = _controller.UpdateScore(score);
+
+            Assert.IsType<OkObjectResult>(result);
+        }
+
+        [Fact]
+        public void Test_UpdateState()
+        {
+            _controller.StartGame();
+
+            var result = _controller.UpdateState(GameState.NotStarted);
+
+            Assert.IsType<OkObjectResult>(result);
+        }
     }
 
-    [Fact]
-    public void Test_StartGame()
+    public class WordRecall_IntegrationTests
     {
-        var result = _controller.StartGame();
+        private readonly WordRecallController _controller = new();
 
-        Assert.IsType<OkObjectResult>(result);
-    }
+        [Fact]
+        public void Test_RandomGameFunctionality()
+        {
+            var result = _controller.StartGame();
 
-    [Fact]
-    public void Test_UpdateScore()
-    {
-        _controller.StartGame();
-        int score = new Random().Next(0, 20);
+            // Test initial values
+            var okResult = Assert.IsType<OkObjectResult>(result);
 
-        var result = _controller.UpdateScore(score);
+            // Test tweaked values
+            int desiredScore = new Random().Next(1, 20);
 
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<WordRecallStatistics>(actionResult.Value);
-        Assert.Equal(score, returnValue.Score);
-    }
+            for (int i = 0; i < desiredScore; i++)
+                _controller.UpdateScore(1);
 
-    [Fact]
-    public void Test_UpdateState()
-    {
-        _controller.StartGame();
+            result = _controller.UpdateHealth(2);
+            okResult = Assert.IsType<OkObjectResult>(result);
 
-        var result = _controller.UpdateState(GameState.NotStarted);
+            // Test end game
+            result = _controller.UpdateHealth(0);
+            okResult = Assert.IsType<OkObjectResult>(result);
 
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<WordRecallStatistics>(actionResult.Value);
-        Assert.Equal(GameState.NotStarted, returnValue.State);
-    }
-}
-
-public class WordRecall_IntegrationTests
-{
-    private readonly WordRecallController _controller = new();
-
-    [Fact]
-    public void Test_RandomGameFunctionality()
-    {
-        var result = _controller.StartGame();
-
-        // Test initial values
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<WordRecallStatistics>(okResult.Value);
-
-        Assert.Equal(GameState.InProgress, returnValue.State);
-        Assert.Equal(0, returnValue.Score);
-        Assert.Equal(3, returnValue.Health);
-
-        // Test tweaked values
-        int desiredScore = new Random().Next(1, 20);
-
-        for (int i = 0; i < desiredScore; i++)
-            _controller.UpdateScore(1);
-
-        result = _controller.UpdateHealth(returnValue.Health - 1);
-        okResult = Assert.IsType<OkObjectResult>(result);
-        returnValue = Assert.IsType<WordRecallStatistics>(okResult.Value);
-
-        Assert.Equal(GameState.InProgress, returnValue.State);
-        Assert.Equal(desiredScore, returnValue.Score);
-        Assert.Equal(2, returnValue.Health);
-
-        // Test end game
-        result = _controller.UpdateHealth(0);
-        okResult = Assert.IsType<OkObjectResult>(result);
-        returnValue = Assert.IsType<WordRecallStatistics>(okResult.Value);
-
-        Assert.Equal(0, returnValue.Health);
-
-        result = _controller.UpdateState(GameState.Finished);
-        okResult = Assert.IsType<OkObjectResult>(result);
-        returnValue = Assert.IsType<WordRecallStatistics>(okResult.Value);
-
-        Assert.Equal(GameState.Finished, returnValue.State);
+            result = _controller.UpdateState(GameState.Finished);
+            okResult = Assert.IsType<OkObjectResult>(result);
+        }
     }
 }

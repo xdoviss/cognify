@@ -1,2 +1,3 @@
 11/27/2024 5:12:00 PM: Attempting to update score, while game is not in progress.
 11/27/2024 5:18:14 PM: Attempting to update score, while game is not in progress.
+12/18/2024 1:03:42 PM: Attempting to change health, while game is not in progress.

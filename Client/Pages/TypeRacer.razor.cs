@@ -187,5 +187,13 @@ namespace cognify.Client.Pages
             // Notifying server that game has finished
             await httpClient.PostAsJsonAsync("api/TypeRacer/finishGame", UserId);
         }
+        [Inject]
+        private NavigationManager NavigationManager { get; set; }
+
+        private void NavigateHome()
+        {
+            NavigationManager.NavigateTo("/");
+        }
+
     }
 }
